@@ -8,7 +8,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "E:\\Desktop\\Development\\Web\\gov-connect\\gov-connect.csproj",
-        "projectName": "`gov-connect",
+        "projectName": "gov-connect",
         "projectPath": "E:\\Desktop\\Development\\Web\\gov-connect\\gov-connect.csproj",
         "packagesPath": "C:\\Users\\jamie\\.nuget\\packages\\",
         "outputPath": "E:\\Desktop\\Development\\Web\\gov-connect\\obj\\",
@@ -49,10 +49,6 @@
               "target": "Package",
               "version": "[10.0.5, )",
               "autoReferenced": true
-            },
-            "MudBlazor": {
-              "target": "Package",
-              "version": "[9.*, )"
             },
             "supabase-csharp": {
               "target": "Package",
