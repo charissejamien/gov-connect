@@ -1,0 +1,72 @@
+@page "/signup"
+@layout Components.Layout.AuthLayout
+
+<div class="min-h-screen w-full flex flex-col justify-center items-center px-4 bg-cover bg-no-repeat bg-center"
+     style="background-image: url('icons/authentication-bg.svg');">
+
+    <div class="w-full max-w-md bg-white border border-slate-200 border-t-[9px] border-t-[#FFC456] shadow-xl rounded-2xl p-10 flex flex-col items-center gap-6"
+        <div class="flex flex-col items-center text-center">
+            <img src="icons/authentication.svg" alt="Auth Icon" class="w-12 h-12 mb-2">
+            <h2 class="text-[28px] font-semibold">Create Account</h2>
+            <p class="text-[14px] font-medium text-gray-500">Join us today - it's free</p>
+        </div>
+
+        <div class="w-full flex flex-col gap-4 mt-2">
+
+            <div class="w-full flex flex-col gap-1.5">
+                <label class="text-[14px] font-semibold text-slate-700 tracking-wide">Full Name</label>
+                <input type="text"
+                       class="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+            </div>
+
+            <div class="w-full flex flex-col gap-1.5">
+                <label class="text-[14px] font-semibold text-slate-700 tracking-wide">Email Address</label>
+                <input type="email"
+                       class="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+            </div>
+
+            <div class="w-full flex flex-col gap-1.5 relative">
+                <label class="text-[14px] font-semibold text-slate-700 tracking-wide">Password</label>
+                <div class="relative w-full">
+                    <input type="password"
+                           class="w-full border border-slate-200 rounded-xl pl-4 pr-11 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    <button type="button"
+                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
+                    </button>
+                </div>
+            </div>
+
+            <div class="w-full flex flex-col gap-1.5 relative">
+                <label class="text-[14px] font-semibold text-slate-700 tracking-wide">Confirm Password</label>
+                <div class="relative w-full">
+                    <input type="password"
+                           class="w-full border border-slate-200 rounded-xl pl-4 pr-11 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    <button type="button"
+                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full flex flex-col gap-5 mt-2">
+            <button
+                class="w-full bg-[#FFC456] hover:bg-[#e6b04d] transition-colors text-black font-semibold py-3 rounded-xl shadow-md hover:shadow-lg">
+                Create Account
+            </button>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-slate-100"></div>
+                <span class="flex-shrink mx-4 text-slate-400 text-[13px] font-normal bg-white px-2">or</span>
+                <div class="flex-grow border-t border-slate-100"></div>
+            </div>
+
+            <div class="text-center text-[14px] text-slate-600 font-medium">
+                Already have an account?
+                <NavLink href="login" class="text-blue-600 hover:underline ml-1 font-semibold">
+                    Sign in
+                </NavLink>
+            </div>
+        </div>
+    </div>
+
+</div>

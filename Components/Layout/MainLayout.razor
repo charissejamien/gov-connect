@@ -1,9 +1,38 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+
+    <header class="flex justify-between p-5 border border-gray-300 border-b-2">
+        <div>
+            <img src="/icons/logo.svg" alt="" class="w-25 h-10">
+        </div>
+        <div class="flex gap-10">
+            <NavLink href="" class="flex items-center">
+                <img src="icons/nav-dashboard.svg" alt="">
+                <p>Dashboard</p>
+            </NavLink>
+            <NavLink href="" class="flex items-center">
+                <img src="icons/nav-services.svg" alt="">
+                <p>Services</p>
+            </NavLink>
+            <NavLink href="" class="flex items-center">
+                <img src="icons/nav-requests.svg" alt="">
+                <p>My Requests</p>
+            </NavLink>
+            <NavLink href="" class="flex items-center">
+                <img src="icons/nav-track.svg" alt="">
+                <p>Track</p>
+            </NavLink>
+        </div>
+        <div class="flex gap-5 items-center">
+            <NavLink href="">
+                <img src="icons/notifications.svg" alt="">
+            </NavLink>
+            <NavLink href="">
+                <img src="icons/profile.svg" alt="" class="w-10 h-10">
+            </NavLink>
+        </div>
+    </header>
 
     <main>
         <article class="content px-4">

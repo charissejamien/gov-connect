@@ -1,0 +1,84 @@
+@page "/user/requests"
+
+
+@rendermode InteractiveServer
+
+<div class="mt-20 ml-10 mr-10">
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-[28px] font-bold">My Requests</h2>
+            <p class="text-gray-600">Manage and track all your document requests</p>
+        </div>
+        <div>
+            <button class="bg-govBlue text-white px-6 py-1.5 rounded-xl">Request a Document</button>
+        </div>
+    </div>
+
+    <div class="mt-10 border-b-2 border-slate-200 px-5 text-[14px] flex gap-16">
+        <button @onclick='() => SetActiveTab("All")'
+                class="pb-2 transition-all @(ActiveTab == "All" ? "text-blue-600 font-medium" : "")">
+            All (24)
+        </button>
+
+        <button @onclick='() => SetActiveTab("Pending")'
+                class="pb-2 transition-all @(ActiveTab == "Pending" ? "text-blue-600 font-medium" : "")">
+            Pending (3)
+        </button>
+
+        <button @onclick='() => SetActiveTab("Processing")'
+                class="pb-2 transition-all @(ActiveTab == "Processing" ? "text-blue-600 font-medium" : "")">
+            Processing (3)
+        </button>
+
+        <button @onclick='() => SetActiveTab("Ready")'
+                class="pb-2 transition-all @(ActiveTab == "Ready" ? "text-blue-600 font-medium" : "")">
+            Ready (9)
+        </button>
+
+        <button @onclick='() => SetActiveTab("Completed")'
+                class="pb-2 transition-all @(ActiveTab == "Completed" ? "text-blue-600 font-medium" : "")">
+            Completed (8)
+        </button>
+    </div>
+
+    <div class="bg-[#D9D7E3]/40 border rounded-xl p-3 mt-7">
+        <div class="flex justify-between">
+            <div class="flex gap-5">
+                <img src="icons/birth-certificate.svg" alt="" class="w-20 h-20">
+                <div>
+                    <h3 class="text-[20px]">Birth Certificate</h3>
+                    <p class="text-[14px] leading-[15px] text-gray-500">GC-35356-5436 PSA</p>
+                    <p class="text-[14px] leading-[20px] text-gray-500">Submitted 12-09-04</p>
+                </div>
+            </div>
+            <div>
+                <button
+                class="bg-[#8DAEDD] px-2 py-1 rounded-md text-[#003E86] text-[14px] font-medium">Processing</button>
+                <button class="bg-[#C3D0EB] px-2 py-1 rounded-md text-[#003E86] text-[14px] font-medium">Track</button>
+            </div>
+        </div>
+        <div class="mt-5">
+            <div class="flex justify-between items-center mb-1">
+                <p class="text-[14px] text-gray-600">Progress</p>
+                <span class="text-[12px] font-semibold text-gray-700">@ProgressPercentage%</span>
+            </div>
+
+            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden relative">
+                <div class="absolute top-0 left-0 h-full transition-all duration-500 ease-out"
+                     style="width: 100%; background: linear-gradient(to right, #276FC2, #990000); clip-path: inset(0 @(100 - ProgressPercentage)% 0 0);">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private string ActiveTab = "All";
+    private int ProgressPercentage = 75;
+
+    private void SetActiveTab(string tabName)
+    {
+        ActiveTab = tabName;
+    }
+}

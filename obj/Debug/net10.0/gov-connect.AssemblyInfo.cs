@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("gov-connect")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+591474ed4b65002314e0f5d230fb61a1c55061ce")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+820817f6d159d1e3090f8032a1b8f8874c197015")]
 [assembly: System.Reflection.AssemblyProductAttribute("gov-connect")]
 [assembly: System.Reflection.AssemblyTitleAttribute("gov-connect")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
