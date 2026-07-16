@@ -1,42 +1,62 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
+<div class="gov-shell">
+    <div class="gov-utility-bar">
+        <div class="gov-container gov-utility-inner">
+            <span>Republic of the Philippines</span>
+            <span class="gov-utility-note">A unified portal for government services</span>
+        </div>
+    </div>
 
-    <header class="flex justify-between p-5 border border-gray-300 border-b-2">
-        <div>
-            <img src="/icons/logo.svg" alt="" class="w-25 h-10">
-        </div>
-        <div class="flex gap-10">
-            <NavLink href="/user/dashboard" class="flex items-center">
-                <img src="icons/nav-dashboard.svg" alt="">
-                <p>Dashboard</p>
+    <header class="gov-header">
+        <div class="gov-container gov-header-inner">
+            <NavLink href="/user/dashboard" class="gov-brand" aria-label="GovConnect home">
+                <img src="/icons/logo.svg" alt="GovConnect" />
+                <span class="gov-brand-copy">
+                    <strong>GovConnect</strong>
+                    <small>Official Citizen Services Portal</small>
+                </span>
             </NavLink>
-            <NavLink href="/user/services" class="flex items-center">
-                <img src="icons/nav-services.svg" alt="">
-                <p>Services</p>
-            </NavLink>
-            <NavLink href="/user/requests" class="flex items-center">
-                <img src="icons/nav-requests.svg" alt="">
-                <p>My Requests</p>
-            </NavLink>
-            <NavLink href="" class="flex items-center">
-                <img src="icons/nav-track.svg" alt="">
-                <p>Track</p>
-            </NavLink>
-        </div>
-        <div class="flex gap-5 items-center">
-            <NavLink href="">
-                <img src="icons/notifications.svg" alt="">
-            </NavLink>
-            <NavLink href="">
-                <img src="icons/profile.svg" alt="" class="w-10 h-10">
-            </NavLink>
+
+            <nav class="gov-nav" aria-label="Primary navigation">
+                <NavLink href="/user/dashboard" Match="NavLinkMatch.All">
+                    <img src="/icons/nav-dashboard.svg" alt="" aria-hidden="true" />
+                    <span>Dashboard</span>
+                </NavLink>
+                <NavLink href="/user/services">
+                    <img src="/icons/nav-services.svg" alt="" aria-hidden="true" />
+                    <span>Services</span>
+                </NavLink>
+                <NavLink href="/user/requests">
+                    <img src="/icons/nav-requests.svg" alt="" aria-hidden="true" />
+                    <span>My Requests</span>
+                </NavLink>
+                <NavLink href="/user/requests">
+                    <img src="/icons/nav-track.svg" alt="" aria-hidden="true" />
+                    <span>Track</span>
+                </NavLink>
+            </nav>
+
+            <div class="gov-account-actions">
+                <NavLink href="/user/requests" class="gov-icon-button" aria-label="Notifications">
+                    <img src="/icons/notifications.svg" alt="" aria-hidden="true" />
+                </NavLink>
+                <NavLink href="/user/dashboard" class="gov-profile-button" aria-label="Account profile">
+                    <img src="/icons/profile.svg" alt="" aria-hidden="true" />
+                    <span>Citizen Account</span>
+                </NavLink>
+            </div>
         </div>
     </header>
 
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
+    <main class="gov-main" id="main-content">
+        @Body
     </main>
+
+    <footer class="gov-footer">
+        <div class="gov-container gov-footer-inner">
+            <span>GovConnect · Official Citizen Services Portal</span>
+            <span>Secure · Accessible · Transparent</span>
+        </div>
+    </footer>
 </div>
