@@ -1,0 +1,234 @@
+@page "/admin/requests"
+@rendermode InteractiveServer
+@inject Supabase.Client SupabaseClient
+@inject NavigationManager Navigation
+@using gov_connect.Data.Models
+
+<div class="flex flex-col gap-6 xl:w-[90%] xl:mx-auto p-6 md:p-10 font-sans">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-blue-700 mb-3">
+                <span class="h-2 w-2 rounded-full bg-blue-600"></span>
+                Admin Operations
+            </div>
+            <h1 class="text-[28px] font-bold text-slate-800">All Requests</h1>
+            <p class="mt-1 text-sm text-slate-500">Review, prioritize, and manage every document request received through GovConnect.</p>
+        </div>
+
+        <button @onclick="NavigateToDashboard"
+                class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+            Back to Dashboard
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div class="rounded-2xl border border-amber-100 bg-[#FFF3E0] p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-amber-800">Total Requests</p>
+                <img src="icons/total-requests.svg" alt="" class="h-8 w-8">
+            </div>
+            <h2 class="mt-3 text-[30px] font-bold text-amber-900">@totalCount</h2>
+        </div>
+
+        <div class="rounded-2xl border border-purple-100 bg-[#F3E8FF] p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-purple-800">Pending</p>
+                <img src="icons/in-progress.svg" alt="" class="h-8 w-8">
+            </div>
+            <h2 class="mt-3 text-[30px] font-bold text-purple-900">@pendingCount</h2>
+        </div>
+
+        <div class="rounded-2xl border border-green-100 bg-[#E8F5E9] p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-green-800">Ready for Pickup</p>
+                <img src="icons/for-pickup.svg" alt="" class="h-8 w-8">
+            </div>
+            <h2 class="mt-3 text-[30px] font-bold text-green-900">@readyCount</h2>
+        </div>
+
+        <div class="rounded-2xl border border-blue-100 bg-[#E3F2FD] p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-blue-800">Completed</p>
+                <img src="icons/total-requests.svg" alt="" class="h-8 w-8">
+            </div>
+            <h2 class="mt-3 text-[30px] font-bold text-blue-900">@completedCount</h2>
+        </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="relative w-full md:w-80">
+                <img src="icons/search.svg" alt="" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-70">
+                <input type="text"
+                       value="@searchTerm"
+                       @oninput="OnSearchChanged"
+                       placeholder="Search applicant or document"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-2.5 text-sm text-slate-700 outline-none ring-0 transition focus:border-blue-400 focus:bg-white" />
+            </div>
+
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-slate-600">Status</label>
+                <select value="@selectedStatus"
+                        @onchange="OnStatusChanged"
+                        class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:bg-white">
+                    <option value="All">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Ready for Pickup">Ready for Pickup</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-5 overflow-hidden rounded-2xl border border-slate-200">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr class="text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        <th class="px-4 py-3">Tracking ID</th>
+                        <th class="px-4 py-3">Applicant</th>
+                        <th class="px-4 py-3">Document</th>
+                        <th class="px-4 py-3">Delivery</th>
+                        <th class="px-4 py-3">Date</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white text-sm text-slate-700">
+                    @if (filteredRequests.Any())
+                    {
+                        @foreach (var request in filteredRequests)
+                        {
+                            <tr class="transition-colors hover:bg-slate-50/80">
+                                <td class="px-4 py-4 font-mono text-xs font-semibold text-blue-600">#@request.Id</td>
+                                <td class="px-4 py-4">
+                                    <div class="font-semibold text-slate-900">@request.FirstName @request.LastName</div>
+                                    <div class="text-[11px] text-slate-500">@request.Purpose</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="font-medium text-slate-800">@request.DocumentTitle</div>
+                                    <div class="text-[11px] text-slate-500">@request.DocumentAgency</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold @(request.DeliveryMethod == "Delivery" ? "bg-amber-100 text-amber-800" : "bg-sky-100 text-sky-800")">
+                                        @request.DeliveryMethod
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-slate-600">@FormatDate(request.CreatedAt)</td>
+                                <td class="px-4 py-4">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold @GetStatusBadgeClass(request.Status)">
+                                        <span class="h-1.5 w-1.5 rounded-full @GetStatusDotClass(request.Status)"></span>
+                                        @request.Status
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-right">
+                                    <button @onclick="() => ReviewRequest(request.Id)"
+                                            class="rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
+                                        Review
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="px-4 py-12 text-center text-sm text-slate-500">
+                                No requests match the current filter. Try another search term.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<RequestItem> allRequests = new();
+    private List<RequestItem> filteredRequests = new();
+    private string searchTerm = string.Empty;
+    private string selectedStatus = "All";
+    private int totalCount = 0;
+    private int pendingCount = 0;
+    private int readyCount = 0;
+    private int completedCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRequests();
+    }
+
+    private async Task LoadRequests()
+    {
+        try
+        {
+            var response = await SupabaseClient.From<RequestItem>()
+                .Order("created_at", Supabase.Postgrest.Constants.Ordering.Descending)
+                .Get();
+
+            allRequests = response.Models ?? new List<RequestItem>();
+            filteredRequests = allRequests.ToList();
+
+            totalCount = allRequests.Count;
+            pendingCount = allRequests.Count(r => r.Status == "Pending");
+            readyCount = allRequests.Count(r => r.Status == "Ready for Pickup");
+            completedCount = allRequests.Count(r => r.Status == "Completed");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error retrieving requests: {ex.Message}");
+        }
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        selectedStatus = e.Value?.ToString() ?? "All";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        filteredRequests = allRequests
+            .Where(r => string.IsNullOrWhiteSpace(searchTerm) ||
+                        $"{r.FirstName} {r.LastName} {r.DocumentTitle} {r.DocumentAgency} {r.Purpose}".Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .Where(r => selectedStatus == "All" || string.Equals(r.Status, selectedStatus, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private void NavigateToDashboard()
+    {
+        Navigation.NavigateTo("/admin/dashboard");
+    }
+
+    private void ReviewRequest(long requestId)
+    {
+        Navigation.NavigateTo($"/admin/request/{requestId}");
+    }
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Pending" => "bg-amber-50 text-amber-700 border border-amber-200",
+        "In Progress" or "Processing" => "bg-purple-50 text-purple-700 border border-purple-200",
+        "Ready for Pickup" => "bg-green-50 text-green-700 border border-green-200",
+        "Completed" => "bg-blue-50 text-blue-700 border border-blue-200",
+        _ => "bg-slate-50 text-slate-700"
+    };
+
+    private string GetStatusDotClass(string status) => status switch
+    {
+        "Pending" => "bg-amber-500",
+        "In Progress" or "Processing" => "bg-purple-500",
+        "Ready for Pickup" => "bg-green-500",
+        "Completed" => "bg-blue-500",
+        _ => "bg-slate-500"
+    };
+
+    private static string FormatDate(DateTime date) => date.ToString("MMM d, yyyy");
+}
