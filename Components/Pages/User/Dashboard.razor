@@ -3,110 +3,96 @@
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
 
-<div class="flex flex-col gap-10 xl:w-[80%] xl:mx-auto p-6 md:p-10 font-sans">
-
-    <div class="rounded-xl overflow-hidden text-white relative shadow-md">
-        <div class="absolute inset-0 z-0 bg-cover bg-no-repeat bg-center"
-             style="background-image: url('icons/container.svg');">
-        </div>
-
-        <div class="relative z-10 p-10 flex flex-col gap-5">
-            <h1 class="text-[28px] font-bold">Magandang Umaga, @(string.IsNullOrEmpty(firstName) ? "User" : firstName)!
-            </h1>
-            <p class="max-w-xl text-white/90 font-medium">
-                Access all government services in one place. No more long queues,
-                no more multiple trips to different cities.
-            </p>
-            <div class="flex flex-wrap gap-5 mt-2">
-                <button @onclick="NavigateToServices"
-                        class="bg-[#276FC2] hover:bg-[#1f5da3] transition-colors rounded-xl p-3 flex gap-2 items-center text-sm font-semibold">
-                    <img src="icons/add.svg" alt="" class="h-5">
-                    Request a Document
-                </button>
-                <button
-                    class="bg-[#D89843] hover:bg-[#bd8339] transition-colors rounded-xl p-3 flex gap-2 items-center text-sm font-semibold">
-                    <img src="icons/search.svg" alt="" class="h-5">
-                    Track a Request
-                </button>
-            </div>
+<div class="citizen-dashboard">
+    <div class="dashboard-heading">
+        <div>
+            <p class="dashboard-eyebrow">Citizen Service Dashboard</p>
+            <h1>Citizen Dashboard</h1>
+            <p>Manage document applications and monitor requests across participating government agencies.</p>
         </div>
     </div>
 
-    <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
-        <NavLink href="user/requests"
-                 class="bg-[#D9D7E3] hover:bg-[#cfcedb] transition-colors rounded-xl p-5 pb-7 w-full shadow-sm block text-gray-800">
-            <div class="flex justify-between items-start">
-                <p class="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">Total Requests</p>
-                <img src="icons/total-requests.svg" alt="" class="w-8 h-8">
-            </div>
-            <h2 class="font-bold text-[32px] mt-2 text-slate-800">24</h2>
-        </NavLink>
-
-        <div class="bg-[#D9D7E3] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
-            <div class="flex justify-between items-start">
-                <p class="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">In Progress</p>
-                <img src="icons/for-pickup.svg" alt="" class="w-8 h-8">
-            </div>
-            <h2 class="font-bold text-[32px] mt-2 text-slate-800">3</h2>
+    <section class="dashboard-actions" aria-label="Primary actions">
+        <div class="dashboard-actions-copy">
+            <span class="section-label">GovConnect Online Services</span>
+            <h2>Magandang Umaga, @(string.IsNullOrEmpty(firstName) ? "Citizen" : firstName)!</h2>
+            <p>Access government services in one place. Submit requirements online and track every application through your citizen account.</p>
         </div>
-
-        <div class="bg-[#D9D7E3] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
-            <div class="flex justify-between items-start">
-                <p class="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">Ready for Pickup</p>
-                <img src="icons/in-progress.svg" alt="" class="w-8 h-8">
-            </div>
-            <h2 class="font-bold text-[32px] mt-2 text-slate-800">9</h2>
+        <div class="dashboard-action-buttons">
+            <button class="primary-gov-button" @onclick="NavigateToServices">
+                <img src="/icons/add.svg" alt="" aria-hidden="true" />
+                Start a new request
+            </button>
+            <NavLink href="/user/requests" class="secondary-gov-button">
+                <img src="/icons/search.svg" alt="" aria-hidden="true" />
+                Track an existing request
+            </NavLink>
         </div>
+    </section>
+
+    <section aria-labelledby="request-overview-title">
+        <div class="section-heading-row">
+            <div><p class="section-label">Request Overview</p><h2 id="request-overview-title">Application summary</h2></div>
+            <NavLink href="/user/requests" class="text-link">View all requests <span aria-hidden="true">→</span></NavLink>
+        </div>
+        <div class="metrics-grid">
+            <NavLink href="/user/requests" class="metric-card">
+                <div class="metric-icon"><img src="/icons/total-requests.svg" alt="" /></div>
+                <div><span>All requests</span><strong>24</strong><small>Across all agencies</small></div>
+            </NavLink>
+            <div class="metric-card">
+                <div class="metric-icon"><img src="/icons/for-pickup.svg" alt="" /></div>
+                <div><span>In progress</span><strong>3</strong><small>Currently being processed</small></div>
+            </div>
+            <div class="metric-card metric-ready">
+                <div class="metric-icon"><img src="/icons/in-progress.svg" alt="" /></div>
+                <div><span>Ready for release</span><strong>9</strong><small>Available for pickup</small></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="dashboard-content-grid">
+        <section class="dashboard-panel" aria-labelledby="recent-title">
+            <div class="panel-heading"><div><p class="section-label">Recent Activity</p><h2 id="recent-title">Latest request</h2></div><span class="request-status">Processing</span></div>
+            <div class="request-record">
+                <div class="record-icon"><img src="/icons/birth-certificate.svg" alt="" /></div>
+                <div class="record-main">
+                    <h3>Birth Certificate</h3>
+                    <p>Philippine Statistics Authority</p>
+                    <dl><div><dt>Reference number</dt><dd>GC-35356-5436</dd></div><div><dt>Date submitted</dt><dd>09 December 2025</dd></div></dl>
+                </div>
+            </div>
+            <div class="request-progress">
+                <div><span>Application progress</span><strong>75%</strong></div>
+                <div class="progress-track"><span style="width: 75%"></span></div>
+                <p>Your request is being verified by the issuing agency.</p>
+            </div>
+            <NavLink href="/user/requests" class="panel-link">View request details <span aria-hidden="true">→</span></NavLink>
+        </section>
+
+        <aside class="dashboard-panel service-guide" aria-labelledby="guide-title">
+            <div class="panel-heading"><div><p class="section-label">Citizen Guide</p><h2 id="guide-title">Before you apply</h2></div></div>
+            <ol>
+                <li><span>1</span><div><strong>Select a document</strong><small>Choose from supported agency services.</small></div></li>
+                <li><span>2</span><div><strong>Submit requirements</strong><small>Provide complete and accurate information.</small></div></li>
+                <li><span>3</span><div><strong>Track your request</strong><small>Monitor verification through your account.</small></div></li>
+            </ol>
+            <p class="security-note"><strong>Secure transactions</strong><br />Your personal information is protected throughout the request process.</p>
+        </aside>
     </div>
 
-    <div>
-        <h3 class="text-[28px] font-bold text-slate-800">Quick Services</h3>
-        <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            <div @onclick='() => RequestDoc("birth-certificate")'
-                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
-                <img src="icons/birth-certificate.svg" alt="" class="w-8 h-8 mb-4">
-                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Birth Certificate</h2>
-                <p class="text-gray-500 text-sm font-medium mt-1">PSA</p>
-            </div>
-
-            <div @onclick='() => RequestDoc("national-id")'
-                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
-                <img src="icons/national-id.svg" alt="" class="w-10 h-8 mb-4">
-                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">National ID</h2>
-                <p class="text-gray-500 text-sm font-medium mt-1">PhilSys</p>
-            </div>
-
-            <div @onclick='() => RequestDoc("drivers-license")'
-                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
-                <img src="icons/drivers-license.svg" alt="" class="w-8 h-8 mb-4">
-                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Driver's License</h2>
-                <p class="text-gray-500 text-sm font-medium mt-1">LTO</p>
-            </div>
-
-            <div @onclick='() => RequestDoc("mayors-permit")'
-                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
-                <img src="icons/business-permit.svg" alt="" class="w-8 h-8 mb-4">
-                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Business Permit</h2>
-                <p class="text-gray-500 text-sm font-medium mt-1">LGU</p>
-            </div>
-
-            <div @onclick='() => RequestDoc("nbi-clearance")'
-                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
-                <img src="icons/total-requests.svg" alt="" class="w-8 h-8 mb-4">
-                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">NBI Clearance</h2>
-                <p class="text-gray-500 text-sm font-medium mt-1">NBI</p>
-            </div>
-
-            <div @onclick='() => RequestDoc("philippine-passport")'
-                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
-                <img src="icons/for-pickup.svg" alt="" class="w-8 h-8 mb-4">
-                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Philippine Passport</h2>
-                <p class="text-gray-500 text-sm font-medium mt-1">DFA</p>
-            </div>
-
+    <section aria-labelledby="services-title">
+        <div class="section-heading-row">
+            <div><p class="section-label">Participating Agencies</p><h2 id="services-title">Frequently requested services</h2></div>
+            <NavLink href="/user/services" class="text-link">Browse all services <span aria-hidden="true">→</span></NavLink>
         </div>
-    </div>
+        <div class="services-grid">
+            <button class="service-card" @onclick='() => RequestDoc("birth-certificate")'><img src="/icons/birth-certificate.svg" alt="" /><span><strong>Birth Certificate</strong><small>Philippine Statistics Authority</small></span><b>PSA</b></button>
+            <button class="service-card" @onclick='() => RequestDoc("national-id")'><img src="/icons/national-id.svg" alt="" /><span><strong>National ID</strong><small>Philippine Identification System</small></span><b>PhilSys</b></button>
+            <button class="service-card" @onclick='() => RequestDoc("drivers-license")'><img src="/icons/drivers-license.svg" alt="" /><span><strong>Driver's License</strong><small>Land Transportation Office</small></span><b>LTO</b></button>
+            <button class="service-card" @onclick='() => RequestDoc("philippine-passport")'><img src="/icons/for-pickup.svg" alt="" /><span><strong>Philippine Passport</strong><small>Department of Foreign Affairs</small></span><b>DFA</b></button>
+        </div>
+    </section>
 </div>
 
 @code {
