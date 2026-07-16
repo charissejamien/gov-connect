@@ -1,0 +1,85 @@
+@using gov_connect.Data.Models
+
+@if (IsOpen && Request is not null)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-blue-600">Request Review</p>
+                    <h2 class="mt-2 text-2xl font-bold text-slate-800">#@Request.Id</h2>
+                </div>
+                <button @onclick="Close"
+                        class="rounded-full border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-600 transition hover:bg-slate-100">
+                    Close
+                </button>
+            </div>
+
+            <div class="mt-6 grid gap-4 md:grid-cols-2">
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Applicant</p>
+                    <p class="mt-2 font-semibold text-slate-900">@Request.FirstName @Request.LastName</p>
+                    <p class="text-sm text-slate-600">@Request.Purpose</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Document</p>
+                    <p class="mt-2 font-semibold text-slate-900">@Request.DocumentTitle</p>
+                    <p class="text-sm text-slate-600">@Request.DocumentAgency</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Delivery</p>
+                    <p class="mt-2 font-semibold text-slate-900">@Request.DeliveryMethod</p>
+                    <p class="text-sm text-slate-600">@Request.Address</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</p>
+                    <div class="mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold @GetStatusBadgeClass(Request.Status)">
+                        <span class="h-1.5 w-1.5 rounded-full @GetStatusDotClass(Request.Status)"></span>
+                        @Request.Status
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+                <button class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
+                    Approve Request
+                </button>
+                <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    Mark as Ready for Pickup
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public RequestItem? Request { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task Close()
+    {
+        if (OnClose.HasDelegate)
+        {
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Pending" => "bg-amber-50 text-amber-700 border border-amber-200",
+        "In Progress" or "Processing" => "bg-purple-50 text-purple-700 border border-purple-200",
+        "Ready for Pickup" => "bg-green-50 text-green-700 border border-green-200",
+        "Completed" => "bg-blue-50 text-blue-700 border border-blue-200",
+        _ => "bg-slate-50 text-slate-700"
+    };
+
+    private string GetStatusDotClass(string status) => status switch
+    {
+        "Pending" => "bg-amber-500",
+        "In Progress" or "Processing" => "bg-purple-500",
+        "Ready for Pickup" => "bg-green-500",
+        "Completed" => "bg-blue-500",
+        _ => "bg-slate-500"
+    };
+}
