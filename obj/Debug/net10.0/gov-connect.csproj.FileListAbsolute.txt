@@ -74,3 +74,7 @@ E:\Desktop\Development\Web\gov-connect\obj\Debug\net10.0\compressed\135690ig2g-{
 E:\Desktop\Development\Web\gov-connect\obj\Debug\net10.0\compressed\wn70qfvr4o-{0}-0g2vmndqo2-0g2vmndqo2.gz
 E:\Desktop\Development\Web\gov-connect\obj\Debug\net10.0\compressed\ricc9n63s9-{0}-0ycvmqtnvb-0ycvmqtnvb.gz
 E:\Desktop\Development\Web\gov-connect\obj\Debug\net10.0\compressed\017ltkb0hs-{0}-54kdz03382-54kdz03382.gz
+E:\Desktop\Development\Web\gov-connect\obj\Debug\net10.0\compressed\ro96yt4em4-{0}-ltorcgkern-ltorcgkern.gz
+E:\Desktop\Development\Web\gov-connect\obj\Debug\net10.0\compressed\lczxtdc17n-{0}-kvrw2tau03-kvrw2tau03.gz
+E:\Desktop\Development\Web\gov-connect\bin\Debug\net10.0\BirdMessenger.dll
+E:\Desktop\Development\Web\gov-connect\bin\Debug\net10.0\Microsoft.IO.RecyclableMemoryStream.dll

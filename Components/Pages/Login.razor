@@ -1,5 +1,8 @@
 @page "/login"
 @layout Components.Layout.AuthLayout
+@rendermode InteractiveServer
+@inject Supabase.Client SupabaseClient
+@inject NavigationManager Navigation
 
 <div class="min-h-screen w-full flex flex-col justify-center items-center px-4 bg-cover bg-no-repeat bg-center"
      style="background-image: url('icons/authentication-bg.svg');">
@@ -13,43 +16,90 @@
             <p class="text-[14px] font-medium text-gray-500">Sign in to your account</p>
         </div>
 
-        <div class="w-full flex flex-col gap-5">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="w-full bg-red-50 border border-red-200 text-red-600 text-[14px] px-4 py-3 rounded-xl font-medium">
+                @errorMessage
+            </div>
+        }
+
+        <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" class="w-full flex flex-col gap-5">
+
             <div class="w-full flex flex-col gap-1.5">
                 <label class="text-[14px] font-semibold text-slate-700">Email Address</label>
-                <input type="email"
-                       class="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                <input type="email" @bind="loginModel.Email" required
+                       class="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
             </div>
 
             <div class="w-full flex flex-col gap-1.5">
                 <label class="text-[14px] font-semibold text-slate-700">Password</label>
-                <input type="password"
-                       class="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                <input type="password" @bind="loginModel.Password" required
+                       class="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
 
                 <div class="text-right mt-1">
                     <a href="#" class="text-[12px] text-blue-600 hover:underline font-medium">Forgot password?</a>
                 </div>
             </div>
-        </div>
 
-        <div class="w-full flex flex-col gap-6">
-            <button
-                class="w-full bg-[#FFC456] hover:bg-[#e6b04d] transition-colors text-black font-semibold py-3 rounded-xl shadow-sm">
-                Sign In
-            </button>
+            <div class="w-full flex flex-col gap-6 mt-2">
+                <button type="submit" disabled="@isSubmitting"
+                        class="w-full bg-[#FFC456] hover:bg-[#e6b04d] transition-colors text-black font-semibold py-3 rounded-xl shadow-sm disabled:opacity-50">
+                    @(isSubmitting ? "Signing In..." : "Sign In")
+                </button>
 
-            <div class="relative flex py-2 items-center">
-                <div class="flex-grow border-t border-slate-200"></div>
-                <span class="flex-shrink mx-4 text-slate-400 text-[14px] font-normal bg-white px-2">or</span>
-                <div class="flex-grow border-t border-slate-200"></div>
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-4 text-slate-400 text-[14px] font-normal bg-white px-2">or</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <div class="text-center text-[14px] text-slate-600 font-medium">
+                    Don't have an account?
+                    <NavLink href="signup" class="text-blue-600 hover:underline ml-1 font-semibold">
+                        Create one
+                    </NavLink>
+                </div>
             </div>
-
-            <div class="text-center text-[14px] text-slate-600 font-medium">
-                Don't have an account?
-                <NavLink href="register" class="text-blue-600 hover:underline ml-1 font-semibold">
-                    Create one
-                </NavLink>
-            </div>
-        </div>
+        </EditForm>
     </div>
-
 </div>
+
+@code {
+    private LoginFormModel loginModel = new();
+    private string errorMessage = "";
+    private bool isSubmitting = false;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = "";
+        isSubmitting = true;
+
+        try
+        {
+            var response = await SupabaseClient.Auth.SignIn(loginModel.Email, loginModel.Password);
+
+            if (response != null && response.User != null)
+            {
+                Navigation.NavigateTo("/user/dashboard");
+            }
+        }
+        catch (Supabase.Gotrue.Exceptions.GotrueException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An unexpected error occurred: " + ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    public class LoginFormModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,186 @@
+@page "/user/services"
+@rendermode InteractiveServer
+@inject Supabase.Client SupabaseClient
+@inject NavigationManager Navigation
+@using gov_connect.Data.Models
+
+<div class="min-h-screen bg-[#F0F2F9] p-8 font-sans">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-8">
+            <h2 class="text-[32px] font-bold text-gray-900">Government Services</h2>
+            <p class="text-gray-600 mt-1">Browse and request documents from various government agencies.</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
+            <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </span>
+                <input type="text" @bind="searchQuery" @bind:event="oninput"
+                       placeholder="Search documents or agencies..."
+                       class="w-full pl-12 pr-4 py-3 bg-white rounded-xl border-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" />
+            </div>
+
+            <div class="relative min-w-[240px]">
+                <select @bind="selectedCategory"
+                        class="w-full px-4 py-3 bg-white rounded-xl border-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 appearance-none cursor-pointer">
+                    <option value="All Categories">All Categories</option>
+                    <option value="Civil Registry">Civil Registry</option>
+                    <option value="Government IDs">Government IDs</option>
+                    <option value="Clearances & Certificates">Clearances & Certificates</option>
+                    <option value="Business & Employment">Business & Employment</option>
+                    <option value="Travel & Immigration">Travel & Immigration</option>
+                </select>
+                <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </span>
+            </div>
+        </div>
+
+        @if (FilteredDocuments.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var doc in FilteredDocuments)
+                {
+                    <div
+                        class="bg-[#E4E8F4] hover:bg-[#DDE2EE] rounded-2xl p-6 transition-all duration-200 flex flex-col justify-between shadow-sm relative group">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="text-[#0D47A1] p-1 bg-white/40 rounded-lg">
+                                @if (doc.IconType == "star")
+                                {
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                }
+                                else if (doc.IconType == "rings")
+                                {
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <circle cx="8" cy="12" r="5" />
+                                        <circle cx="16" cy="12" r="5" />
+                                    </svg>
+                                }
+                                else if (doc.IconType == "scroll")
+                                {
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                }
+                                else if (doc.IconType == "id")
+                                {
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-7 8a3 3 0 100-6 3 3 0 000 6z" />
+                                    </svg>
+                                }
+                                else if (doc.IconType == "shield")
+                                {
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                }
+                                else if (doc.IconType == "briefcase")
+                                {
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                }
+                                else if (doc.IconType == "airplane")
+                                {
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                    </svg>
+                                }
+                            </div>
+
+                            <span
+                                class="bg-[#CFD5E5] text-gray-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                @doc.Agency
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-900 leading-tight">@doc.Title</h3>
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-2" title="@doc.Description">@doc.Description</p>
+                        </div>
+
+                        <div class="flex justify-between items-center text-sm font-semibold text-gray-700 mb-5">
+                            <span>@(doc.Price == "Free" ? "Free" : $"₱ {doc.Price}")</span>
+                            <span class="flex items-center gap-1.5 text-xs text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                @doc.ProcessingTime
+                            </span>
+                        </div>
+
+                        <button @onclick="() => NavigateToRequestForm(doc.Slug)"
+                                class="w-full bg-[#A8C7FA] hover:bg-blue-400 text-[#002D62] font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors duration-150">
+                            Request Now
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-16 bg-white rounded-2xl shadow-sm">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-lg font-bold text-gray-700">No documents found</h3>
+                <p class="text-gray-500 text-sm mt-1">Try adjusting your keyword searches or category filters.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string searchQuery = "";
+    private string selectedCategory = "All Categories";
+    private List<DocumentItem> documentsList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await SupabaseClient.From<DocumentItem>().Get();
+            documentsList = response.Models ?? new List<DocumentItem>();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error retrieving documents: {ex.Message}");
+        }
+    }
+
+    private IEnumerable<DocumentItem> FilteredDocuments => documentsList
+        .Where(d => (selectedCategory == "All Categories" || d.Category == selectedCategory) &&
+                    (string.IsNullOrWhiteSpace(searchQuery) ||
+                     d.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                     d.Agency.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                     d.Description.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)));
+
+    private void NavigateToRequestForm(string slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/user/request/{slug.ToLower()}");
+        }
+    }
+}

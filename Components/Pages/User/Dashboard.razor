@@ -1,26 +1,30 @@
 @page "/user/dashboard"
+@rendermode InteractiveServer
+@inject Supabase.Client SupabaseClient
+@inject NavigationManager Navigation
 
-<div class="flex flex-col gap-10 xl:w-[80%] xl:mx-auto">
-    <div class="mt-10 rounded-xl overflow-hidden text-white relative">
+<div class="flex flex-col gap-10 xl:w-[80%] xl:mx-auto p-6 md:p-10 font-sans">
 
+    <div class="rounded-xl overflow-hidden text-white relative shadow-md">
         <div class="absolute inset-0 z-0 bg-cover bg-no-repeat bg-center"
              style="background-image: url('icons/container.svg');">
         </div>
 
         <div class="relative z-10 p-10 flex flex-col gap-5">
-            <h1 class="text-[24px] font-semibold">Magandang Umaga, Maria!</h1>
-            <p class="max-w-xl text-white/90">
+            <h1 class="text-[28px] font-bold">Magandang Umaga, @(string.IsNullOrEmpty(firstName) ? "User" : firstName)!
+            </h1>
+            <p class="max-w-xl text-white/90 font-medium">
                 Access all government services in one place. No more long queues,
                 no more multiple trips to different cities.
             </p>
             <div class="flex flex-wrap gap-5 mt-2">
-                <button
-                    class="bg-[#276FC2] hover:bg-[#1f5da3] transition-colors rounded-xl p-2.5 flex gap-2 items-center text-sm">
+                <button @onclick="NavigateToServices"
+                        class="bg-[#276FC2] hover:bg-[#1f5da3] transition-colors rounded-xl p-3 flex gap-2 items-center text-sm font-semibold">
                     <img src="icons/add.svg" alt="" class="h-5">
                     Request a Document
                 </button>
                 <button
-                    class="bg-[#D89843] hover:bg-[#bd8339] transition-colors rounded-xl p-2.5 flex gap-2 items-center text-sm">
+                    class="bg-[#D89843] hover:bg-[#bd8339] transition-colors rounded-xl p-3 flex gap-2 items-center text-sm font-semibold">
                     <img src="icons/search.svg" alt="" class="h-5">
                     Track a Request
                 </button>
@@ -28,72 +32,118 @@
         </div>
     </div>
 
-    <div class="w-full flex gap-10">
-        <NavLink href="user/requests" class="bg-[#D9D7E3] rounded-xl p-3 pb-7 w-full">
-            <div class="flex justify-between">
-                <p class="text-[14px]">Total Request</p>
+    <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
+        <NavLink href="user/requests"
+                 class="bg-[#D9D7E3] hover:bg-[#cfcedb] transition-colors rounded-xl p-5 pb-7 w-full shadow-sm block text-gray-800">
+            <div class="flex justify-between items-start">
+                <p class="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">Total Requests</p>
                 <img src="icons/total-requests.svg" alt="" class="w-8 h-8">
             </div>
-            <h2 class="font-semibold text-[24px] mt-1">24</h2>
+            <h2 class="font-bold text-[32px] mt-2 text-slate-800">24</h2>
         </NavLink>
 
-        <div class="bg-[#D9D7E3] rounded-xl p-3 pb-7 w-full">
-            <div class="flex justify-between">
-                <p class="text-[14px]">In Progress</p>
+        <div class="bg-[#D9D7E3] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
+            <div class="flex justify-between items-start">
+                <p class="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">In Progress</p>
                 <img src="icons/for-pickup.svg" alt="" class="w-8 h-8">
             </div>
-            <h2 class="font-semibold text-[24px] mt-1">3</h2>
+            <h2 class="font-bold text-[32px] mt-2 text-slate-800">3</h2>
         </div>
-        <div class="bg-[#D9D7E3] rounded-xl p-3 pb-7 w-full">
-            <div class="flex justify-between">
-                <p class="text-[14px]">Ready for Pickup</p>
+
+        <div class="bg-[#D9D7E3] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
+            <div class="flex justify-between items-start">
+                <p class="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">Ready for Pickup</p>
                 <img src="icons/in-progress.svg" alt="" class="w-8 h-8">
             </div>
-            <h2 class="font-semibold text-[24px] mt-1">9</h2>
+            <h2 class="font-bold text-[32px] mt-2 text-slate-800">9</h2>
         </div>
     </div>
 
     <div>
-        <h3 class="text-[32px] font-semibold">Quick Services</h3>
-        <div class="mt-5">
-            <div class="flex gap-10">
-                <div class="bg-[#E8E6F4] rounded-xl p-3 pb-7 w-full">
-                    <img src="icons/birth-certificate.svg" alt="" class="w-8">
-                    <h2 class="font-medium text-[24px]">Birth Certificate</h2>
-                    <p class="text-gray-400">PSA</p>
-                </div>
-                <div class="bg-[#E8E6F4] rounded-xl p-3 pb-7 w-full">
-                    <img src="icons/national-id.svg" alt="" class="w-10">
-                    <h2 class="font-medium text-[24px]">National ID</h2>
-                    <p class="text-gray-400">PhilSys</p>
-                </div>
-                <div class="bg-[#E8E6F4] rounded-xl p-3 pb-7 w-full">
-                    <img src="icons/drivers-license.svg" alt="">
-                    <h2 class="font-medium text-[24px]">Driver's License</h2>
-                    <p class="text-gray-400">LGU</p>
-                </div>
-            </div>
-            <div class="flex gap-10 mt-5">
-                <div class="bg-[#E8E6F4] rounded-xl p-3 pb-7 w-full">
-                    <img src="icons/business-permit.svg" alt="" class="w-8">
-                    <h2 class="font-medium text-[24px]">Business Permit</h2>
-                    <p class="text-gray-400">PSA</p>
-                </div>
-                <div class="bg-[#E8E6F4] rounded-xl p-3 pb-7 w-full">
-                    <img src="icons/national-id.svg" alt="" class="w-10">
-                    <h2 class="font-medium text-[24px]">National ID</h2>
-                    <p class="text-gray-400">PhilSys</p>
-                </div>
-                <div class="bg-[#E8E6F4] rounded-xl p-3 pb-7 w-full">
-                    <img src="icons/drivers-license.svg" alt="">
-                    <h2 class="font-medium text-[24px]">Driver's License</h2>
-                    <p class="text-gray-400">LGU</p>
-                </div>
-            </div>
-        </div>
+        <h3 class="text-[28px] font-bold text-slate-800">Quick Services</h3>
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-6">
 
+            <div @onclick='() => RequestDoc("birth-certificate")'
+                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
+                <img src="icons/birth-certificate.svg" alt="" class="w-8 h-8 mb-4">
+                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Birth Certificate</h2>
+                <p class="text-gray-500 text-sm font-medium mt-1">PSA</p>
+            </div>
+
+            <div @onclick='() => RequestDoc("national-id")'
+                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
+                <img src="icons/national-id.svg" alt="" class="w-10 h-8 mb-4">
+                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">National ID</h2>
+                <p class="text-gray-500 text-sm font-medium mt-1">PhilSys</p>
+            </div>
+
+            <div @onclick='() => RequestDoc("drivers-license")'
+                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
+                <img src="icons/drivers-license.svg" alt="" class="w-8 h-8 mb-4">
+                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Driver's License</h2>
+                <p class="text-gray-500 text-sm font-medium mt-1">LTO</p>
+            </div>
+
+            <div @onclick='() => RequestDoc("mayors-permit")'
+                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
+                <img src="icons/business-permit.svg" alt="" class="w-8 h-8 mb-4">
+                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Business Permit</h2>
+                <p class="text-gray-500 text-sm font-medium mt-1">LGU</p>
+            </div>
+
+            <div @onclick='() => RequestDoc("nbi-clearance")'
+                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
+                <img src="icons/total-requests.svg" alt="" class="w-8 h-8 mb-4">
+                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">NBI Clearance</h2>
+                <p class="text-gray-500 text-sm font-medium mt-1">NBI</p>
+            </div>
+
+            <div @onclick='() => RequestDoc("philippine-passport")'
+                 class="bg-[#E8E6F4] hover:bg-[#dfdceb] cursor-pointer transition-colors rounded-xl p-5 pb-7 w-full shadow-sm">
+                <img src="icons/for-pickup.svg" alt="" class="w-8 h-8 mb-4">
+                <h2 class="font-semibold text-[20px] text-slate-800 leading-snug">Philippine Passport</h2>
+                <p class="text-gray-500 text-sm font-medium mt-1">DFA</p>
+            </div>
+
+        </div>
     </div>
 </div>
 
+@code {
+    private string firstName = "User";
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var user = SupabaseClient.Auth.CurrentUser;
+            if (user != null && user.UserMetadata != null)
+            {
+                if (user.UserMetadata.TryGetValue("full_name", out var nameObj) && nameObj != null)
+                {
+                    string fullName = nameObj.ToString() ?? string.Empty;
 
+                    var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (nameParts.Length > 0)
+                    {
+                        firstName = nameParts[0];
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error obtaining user session details: {ex.Message}");
+        }
+    }
+
+    private void NavigateToServices()
+    {
+        Navigation.NavigateTo("/user/services");
+    }
+
+    private void RequestDoc(string slug)
+    {
+        Navigation.NavigateTo($"/user/request/{slug}");
+    }
+}
