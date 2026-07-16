@@ -10,7 +10,11 @@
 <div class="min-h-screen bg-[#F0F2F9] py-12 px-4 md:px-8 font-sans">
     <div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
 
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Government Services</h2>
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-2">@(RequiresAppointment ? "Appointment Application" : "Government Services")</h2>
+        @if (RequiresAppointment)
+        {
+            <p class="text-center text-gray-600 mb-8">Review the requirements before selecting an appointment schedule.</p>
+        }
 
         @if (!string.IsNullOrEmpty(errorMessage))
         {
@@ -26,6 +30,61 @@
             </div>
         }
 
+        @if (RequiresAppointment)
+        {
+            <div class="appointment-flow">
+                <div class="appointment-service-summary">
+                    <div class="appointment-agency">@MatchedDocument?.Agency</div>
+                    <div><span>Appointment service</span><h3>@MatchedDocument?.Title</h3><p>An in-person appearance is required for identity verification@(DocumentSlug.Equals("national-id", StringComparison.OrdinalIgnoreCase) ? ", photograph, and biometrics." : " and biometrics.")</p></div>
+                </div>
+
+                <section class="requirements-checker" aria-labelledby="requirements-title">
+                    <div class="requirements-heading">
+                        <div><p class="section-label">Preparation Checklist</p><h3 id="requirements-title">Required documents</h3><p>Check each item that you already have. Bring the original and one photocopy unless stated otherwise.</p></div>
+                        <div class="readiness-score"><strong>@CompletedRequirementCount/@requirements.Count</strong><span>available</span></div>
+                    </div>
+
+                    <div class="readiness-bar"><span style="width: @ReadinessPercentage%"></span></div>
+
+                    <div class="requirements-list">
+                        @foreach (var requirement in requirements)
+                        {
+                            <label class="requirement-item @(requirement.IsAvailable ? "available" : "missing")">
+                                <input type="checkbox" checked="@requirement.IsAvailable" @onchange="e => SetRequirementAvailability(requirement, (bool)(e.Value ?? false))" />
+                                <span class="requirement-check" aria-hidden="true">@(requirement.IsAvailable ? "✓" : "")</span>
+                                <span class="requirement-copy"><strong>@requirement.Name</strong><small>@requirement.Description</small></span>
+                                <span class="requirement-state">@(requirement.IsAvailable ? "Available" : "Still needed")</span>
+                            </label>
+                        }
+                    </div>
+
+                    @if (!AllRequirementsAvailable)
+                    {
+                        <div class="missing-requirements-notice" role="status"><strong>You still need @MissingRequirementCount requirement@(MissingRequirementCount == 1 ? "" : "s").</strong> You may review schedules, but appointment confirmation will be enabled once your checklist is complete.</div>
+                    }
+                    else
+                    {
+                        <div class="requirements-ready" role="status"><strong>Your checklist is complete.</strong> You may now select and confirm an appointment schedule.</div>
+                    }
+                </section>
+
+                <section class="appointment-schedule" aria-labelledby="schedule-title">
+                    <div><p class="section-label">Appointment Schedule</p><h3 id="schedule-title">Select your preferred visit</h3></div>
+                    <div class="appointment-fields">
+                        <label><span>DFA office</span><select @bind="appointmentOffice"><option>DFA Aseana</option><option>DFA NCR East</option><option>DFA NCR South</option><option>DFA Cebu</option><option>DFA Davao</option></select></label>
+                        <label><span>Preferred date</span><input type="date" @bind="appointmentDate" min="@MinimumAppointmentDate" /></label>
+                        <label><span>Preferred time</span><select @bind="appointmentTime"><option value="">Select a time</option><option>8:00 AM</option><option>10:00 AM</option><option>1:00 PM</option><option>3:00 PM</option></select></label>
+                    </div>
+                </section>
+
+                <button type="button" class="appointment-submit" disabled="@(!CanBookAppointment || isSubmitting)" @onclick="HandleAppointment">
+                    @(isSubmitting ? "Confirming appointment..." : AllRequirementsAvailable ? "Confirm appointment" : "Complete requirements checklist")
+                </button>
+                <p class="appointment-disclaimer">Checking an item confirms that you will bring the required document. The issuing agency will validate all originals during your appointment.</p>
+            </div>
+        }
+        else
+        {
         <EditForm Model="@requestModel" OnValidSubmit="HandleSubmit">
             <DataAnnotationsValidator />
 
@@ -155,6 +214,7 @@
 
             </div>
         </EditForm>
+        }
     </div>
 </div>
 
@@ -167,6 +227,21 @@
     private bool isSubmitting = false;
     private string errorMessage = "";
     private string successMessage = "";
+    private string appointmentOffice = "DFA Aseana";
+    private DateTime? appointmentDate;
+    private string appointmentTime = "";
+    private DateTime MinimumAppointmentDate => DateTime.Today.AddDays(1);
+    private List<RequirementChecklistItem> requirements = new();
+
+    private bool RequiresAppointment => DocumentSlug.Equals("philippine-passport", StringComparison.OrdinalIgnoreCase)
+        || DocumentSlug.Equals("national-id", StringComparison.OrdinalIgnoreCase)
+        || DocumentSlug.Equals("drivers-license", StringComparison.OrdinalIgnoreCase)
+        || DocumentSlug.Equals("nbi-clearance", StringComparison.OrdinalIgnoreCase);
+    private int CompletedRequirementCount => requirements.Count(r => r.IsAvailable);
+    private int MissingRequirementCount => requirements.Count - CompletedRequirementCount;
+    private int ReadinessPercentage => requirements.Count == 0 ? 0 : (int)Math.Round(CompletedRequirementCount * 100d / requirements.Count);
+    private bool AllRequirementsAvailable => requirements.Count > 0 && requirements.All(r => r.IsAvailable);
+    private bool CanBookAppointment => AllRequirementsAvailable && appointmentDate.HasValue && !string.IsNullOrWhiteSpace(appointmentTime);
 
     protected override void OnParametersSet()
     {
@@ -176,7 +251,62 @@
         if (MatchedDocument == null)
         {
             Navigation.NavigateTo("/user/services");
+            return;
         }
+
+        requirements = GetRequirements(DocumentSlug);
+    }
+
+    private static List<RequirementChecklistItem> GetRequirements(string slug) => slug.ToLowerInvariant() switch
+    {
+        "philippine-passport" =>
+        [
+            new("Confirmed online application form", "Complete and print the appointment application form."),
+            new("PSA birth certificate", "Original PSA-authenticated birth certificate."),
+            new("Valid government-issued ID", "Bring the original ID and one photocopy."),
+            new("Supporting document", "Marriage certificate or other supporting record, if applicable.")
+        ],
+        "drivers-license" =>
+        [
+            new("Student permit or current license", "Bring the original permit or license."),
+            new("Medical certificate", "Must be issued by an LTO-accredited clinic."),
+            new("Valid government-issued ID", "Bring the original ID and one photocopy."),
+            new("Driving course certificate", "Required for applicable new license applications.")
+        ],
+        "national-id" =>
+        [
+            new("PSA birth certificate or valid primary ID", "Bring the original supporting document used to verify your demographic information."),
+            new("Proof of address", "Bring a document showing your current residential address when requested."),
+            new("White-background photograph readiness", "Your front-facing photograph will be captured at the PhilSys registration center; wear appropriate clothing and avoid accessories that obscure the face."),
+            new("Biometric capture readiness", "Your fingerprints and iris scan will be collected during the appointment.")
+        ],
+        _ =>
+        [
+            new("Valid government-issued ID", "Bring the original ID and one photocopy."),
+            new("Barangay certificate", "Provide proof of current residence when applicable."),
+            new("Application reference number", "Bring your completed online registration reference.")
+        ]
+    };
+
+    private void SetRequirementAvailability(RequirementChecklistItem requirement, bool isAvailable)
+    {
+        requirement.IsAvailable = isAvailable;
+    }
+
+    private async Task HandleAppointment()
+    {
+        errorMessage = "";
+        successMessage = "";
+        if (!CanBookAppointment)
+        {
+            errorMessage = AllRequirementsAvailable ? "Please select an appointment date and time." : "Complete the requirements checklist before confirming an appointment.";
+            return;
+        }
+
+        isSubmitting = true;
+        await Task.Delay(600);
+        successMessage = $"Your appointment request for {appointmentDate:MMMM d, yyyy} at {appointmentTime} has been recorded.";
+        isSubmitting = false;
     }
 
     private async Task HandleSubmit()
@@ -247,5 +377,12 @@
         public string LastName { get; set; } = "";
         public string DeliveryMethod { get; set; } = "PickUp";
         public string Address { get; set; } = "";
+    }
+
+    private sealed class RequirementChecklistItem(string name, string description)
+    {
+        public string Name { get; } = name;
+        public string Description { get; } = description;
+        public bool IsAvailable { get; set; }
     }
 }
