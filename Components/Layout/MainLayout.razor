@@ -38,9 +38,45 @@
             </nav>
 
             <div class="gov-account-actions">
-                <NavLink href="/user/requests" class="gov-icon-button" aria-label="Notifications">
+                <div class="notification-menu">
+                <button type="button" class="gov-icon-button notification-trigger" aria-label="Notifications" aria-expanded="@showNotifications" @onclick="ToggleNotifications">
                     <img src="/icons/notifications.svg" alt="" aria-hidden="true" />
-                </NavLink>
+                    @if (UnreadNotificationCount > 0)
+                    {
+                        <span class="notification-count">@UnreadNotificationCount</span>
+                    }
+                </button>
+                @if (showNotifications)
+                {
+                    <div class="notification-dropdown" role="region" aria-label="Recent notifications">
+                        <div class="notification-header">
+                            <div><strong>Notifications</strong><span>@UnreadNotificationCount unread update@(UnreadNotificationCount == 1 ? "" : "s")</span></div>
+                            @if (UnreadNotificationCount > 0)
+                            {
+                                <button type="button" @onclick="MarkAllAsRead">Mark all as read</button>
+                            }
+                        </div>
+                        <div class="notification-list">
+                            @foreach (var notification in notifications)
+                            {
+                                <NavLink href="@notification.Href" class="@(notification.IsRead ? "notification-item" : "notification-item unread")" @onclick="() => OpenNotification(notification)">
+                                    <span class="notification-type @notification.Kind" aria-hidden="true">@notification.Symbol</span>
+                                    <span class="notification-copy">
+                                        <strong>@notification.Title</strong>
+                                        <span>@notification.Message</span>
+                                        <time>@notification.Time</time>
+                                    </span>
+                                    @if (!notification.IsRead)
+                                    {
+                                        <span class="unread-dot" aria-label="Unread"></span>
+                                    }
+                                </NavLink>
+                            }
+                        </div>
+                        <NavLink href="/user/requests" class="notification-footer" @onclick="CloseNotifications">View all document requests <span aria-hidden="true">→</span></NavLink>
+                    </div>
+                }
+                </div>
                 <NavLink href="/user/dashboard" class="gov-profile-button" aria-label="Account profile">
                     <img src="/icons/profile.svg" alt="" aria-hidden="true" />
                     <span>Citizen Account</span>
@@ -60,3 +96,37 @@
         </div>
     </footer>
 </div>
+
+@code {
+    private bool showNotifications;
+    private int UnreadNotificationCount => notifications.Count(n => !n.IsRead);
+    private readonly List<PortalNotification> notifications =
+    [
+        new("Ready for pickup", "Your Birth Certificate is ready for pickup at the PSA Main Office.", "Today, 9:15 AM", "/user/track", "ready", "✓"),
+        new("Verification completed", "Your supporting documents have been validated by PSA.", "Yesterday, 3:42 PM", "/user/track", "verified", "✓"),
+        new("Appointment reminder", "Your Philippine Passport appointment is scheduled for 19 July at 10:00 AM.", "15 July, 4:30 PM", "/user/requests", "appointment", "19", true)
+    ];
+
+    private void ToggleNotifications() => showNotifications = !showNotifications;
+    private void CloseNotifications() => showNotifications = false;
+    private void MarkAllAsRead()
+    {
+        foreach (var notification in notifications) notification.IsRead = true;
+    }
+    private void OpenNotification(PortalNotification notification)
+    {
+        notification.IsRead = true;
+        showNotifications = false;
+    }
+
+    private sealed class PortalNotification(string title, string message, string time, string href, string kind, string symbol, bool isRead = false)
+    {
+        public string Title { get; } = title;
+        public string Message { get; } = message;
+        public string Time { get; } = time;
+        public string Href { get; } = href;
+        public string Kind { get; } = kind;
+        public string Symbol { get; } = symbol;
+        public bool IsRead { get; set; } = isRead;
+    }
+}

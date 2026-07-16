@@ -79,10 +79,37 @@ button, select { cursor: pointer; }
 .gov-nav a.active::after { content: ""; position: absolute; height: 3px; background: var(--gov-gold); left: 15px; right: 15px; bottom: 0; }
 .gov-account-actions { display: flex; align-items: center; gap: 8px; }
 .gov-icon-button, .gov-profile-button { min-height: 42px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--gov-border); background: white; text-decoration: none; }
-.gov-icon-button { width: 42px; border-radius: 4px; }
+.gov-icon-button { width: 42px; border-radius: 4px; padding: 0; }
 .gov-icon-button img { width: 20px; height: 20px; }
 .gov-profile-button { gap: 8px; padding: 4px 10px 4px 5px; border-radius: 4px; color: #344055; font-size: 12px; font-weight: 600; }
 .gov-profile-button img { width: 31px; height: 31px; }
+.notification-menu { position: relative; }
+.notification-trigger { position: relative; }
+.notification-trigger:hover { border-color: #aebbc9; background: #f5f7fa; }
+.notification-count { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 5px; border: 2px solid white; border-radius: 999px; background: #990000; color: white; font-size: 10px; font-weight: 800; line-height: 1; }
+.notification-dropdown { position: absolute; z-index: 70; top: calc(100% + 12px); right: 0; width: min(390px, calc(100vw - 24px)); overflow: hidden; border: 1px solid #cfd5df; background: white; box-shadow: 0 18px 45px rgba(22,40,64,.2); }
+.notification-dropdown::before { content: ""; position: absolute; top: -7px; right: 14px; width: 13px; height: 13px; transform: rotate(45deg); border-left: 1px solid #cfd5df; border-top: 1px solid #cfd5df; background: white; }
+.notification-header { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 17px; border-bottom: 1px solid #dde1e8; }
+.notification-header > div { display: flex; flex-direction: column; }
+.notification-header strong { color: #263448; font-size: 16px; }
+.notification-header span { margin-top: 2px; color: #6a7484; font-size: 12px; }
+.notification-header button { padding: 0; border: 0; background: transparent; color: #276FC2; font: inherit; font-size: 12px; font-weight: 700; }
+.notification-header button:hover { text-decoration: underline; }
+.notification-list { max-height: 390px; overflow-y: auto; }
+.notification-item { position: relative; display: grid; grid-template-columns: 42px 1fr 8px; gap: 12px; padding: 15px 17px; border-bottom: 1px solid #e4e7ec; color: inherit; text-decoration: none; }
+.notification-item:hover { background: #f7f8fb; }
+.notification-item.unread { background: #f3f6fb; }
+.notification-item.unread:hover { background: #edf2f8; }
+.notification-type { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: #E8E6F4; color: #276FC2; font-size: 15px; font-weight: 800; }
+.notification-type.ready { background: #dcf3e3; color: #287141; }
+.notification-type.appointment { background: #fff0d6; color: #8a581a; font-size: 11px; }
+.notification-copy { display: flex; flex-direction: column; min-width: 0; }
+.notification-copy strong { color: #29374a; font-size: 14px; }
+.notification-copy > span { margin-top: 3px; color: #596577; font-size: 13px; line-height: 1.4; }
+.notification-copy time { margin-top: 6px; color: #7c8491; font-size: 11px; }
+.unread-dot { width: 8px; height: 8px; align-self: center; border-radius: 50%; background: #276FC2; }
+.notification-footer { min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #276FC2; font-size: 13px; font-weight: 700; text-decoration: none; }
+.notification-footer:hover { background: #f6f8fb; text-decoration: underline; }
 .gov-main { flex: 1; }
 .gov-footer { background: var(--gov-blue-deep); color: #dce8f5; font-size: 12px; }
 .gov-footer-inner { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
@@ -296,6 +323,8 @@ body { font-size: 16px; line-height: 1.5; }
   .tracking-metadata { grid-template-columns: 1fr; }
   .tracking-metadata div { min-height: 84px; }
   .tracking-metadata div + div { border-left: 0; border-top: 1px solid #d1ccd9; }
+  .notification-dropdown { position: fixed; top: 112px; right: 12px; left: 12px; width: auto; }
+  .notification-dropdown::before { display: none; }
 }
 
 /* Appointment preparation and requirements */
