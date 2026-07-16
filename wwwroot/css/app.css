@@ -297,3 +297,49 @@ body { font-size: 16px; line-height: 1.5; }
   .tracking-metadata div { min-height: 84px; }
   .tracking-metadata div + div { border-left: 0; border-top: 1px solid #d1ccd9; }
 }
+
+/* Appointment preparation and requirements */
+.appointment-flow { display: grid; gap: 25px; }
+.appointment-service-summary { display: flex; align-items: center; gap: 17px; padding: 20px; border: 1px solid #d7d3e3; border-left: 5px solid #990000; background: #F2EFFF; }
+.appointment-agency { width: 54px; height: 54px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #990000; color: white; font-size: 13px; font-weight: 800; }
+.appointment-service-summary span { color: #6a7382; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; }
+.appointment-service-summary h3 { margin: 2px 0; color: #273549; font-size: 20px; }
+.appointment-service-summary p { margin: 0; color: #596476; font-size: 14px; }
+.requirements-checker, .appointment-schedule { padding: 24px; border: 1px solid #d6dbe5; background: white; }
+.requirements-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 22px; }
+.requirements-heading h3, .appointment-schedule h3 { margin: 5px 0; color: #253348; font-size: 21px; }
+.requirements-heading p:last-child { margin: 0; color: #5d6879; font-size: 14px; }
+.readiness-score { flex: none; display: flex; align-items: baseline; gap: 5px; color: #5f6979; }
+.readiness-score strong { color: #276FC2; font-size: 25px; }
+.readiness-score span { font-size: 12px; }
+.readiness-bar { height: 8px; margin: 19px 0; overflow: hidden; background: #e1dfe8; }
+.readiness-bar span { display: block; height: 100%; background: linear-gradient(90deg, #276FC2, #55ad71); transition: width .2s ease; }
+.requirements-list { display: grid; gap: 10px; }
+.requirement-item { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 13px; min-height: 70px; padding: 13px 15px; border: 1px solid #d7dce5; background: #fafbfc; cursor: pointer; }
+.requirement-item:hover { border-color: #9fb5d0; }
+.requirement-item.available { border-color: #a7d5b4; background: #f3fbf5; }
+.requirement-item input { position: absolute; opacity: 0; pointer-events: none; }
+.requirement-check { width: 24px; height: 24px; display: grid; place-items: center; border: 2px solid #9aa4b3; border-radius: 3px; color: white; font-size: 15px; font-weight: 800; }
+.requirement-item.available .requirement-check { border-color: #3e9d59; background: #3e9d59; }
+.requirement-copy { display: flex; flex-direction: column; }
+.requirement-copy strong { color: #29374b; font-size: 15px; }
+.requirement-copy small { margin-top: 3px; color: #687284; font-size: 13px; }
+.requirement-state { padding: 5px 8px; border-radius: 3px; background: #fff0dd; color: #8a541b; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.requirement-item.available .requirement-state { background: #dff3e5; color: #24683a; }
+.missing-requirements-notice, .requirements-ready { margin-top: 16px; padding: 13px 15px; border-left: 4px solid #D89843; background: #fff7e9; color: #685239; font-size: 14px; }
+.requirements-ready { border-left-color: #3e9d59; background: #edf8f0; color: #315e3d; }
+.appointment-fields { margin-top: 17px; display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 13px; }
+.appointment-fields label { display: grid; gap: 7px; }
+.appointment-fields label > span { color: #4c586a; font-size: 13px; font-weight: 700; }
+.appointment-fields input, .appointment-fields select { min-height: 50px; padding: 0 13px; border: 1px solid #cbd2de !important; border-radius: 4px; background: #fbfcfd; color: #2c394d; font: inherit; font-size: 14px; }
+.appointment-submit { min-height: 54px; border: 1px solid #276FC2; border-radius: 4px; background: #276FC2; color: white; font: inherit; font-size: 16px; font-weight: 700; }
+.appointment-submit:hover:not(:disabled) { background: #1f5da3; }
+.appointment-submit:disabled { border-color: #b4bac5; background: #c6cad2; color: #646c78; cursor: not-allowed; }
+.appointment-disclaimer { margin: -13px 0 0; color: #697384; font-size: 12px; text-align: center; }
+
+@media (max-width: 700px) {
+  .requirements-heading { flex-direction: column; }
+  .appointment-fields { grid-template-columns: 1fr; }
+  .requirement-item { grid-template-columns: 24px 1fr; }
+  .requirement-state { grid-column: 2; justify-self: start; }
+}
