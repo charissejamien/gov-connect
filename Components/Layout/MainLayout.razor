@@ -1,4 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+@{
+    var currentPath = Navigation.ToBaseRelativePath(Navigation.Uri);
+    var isAdminRoute = currentPath.StartsWith("admin", StringComparison.OrdinalIgnoreCase);
+}
 
 <div class="gov-shell">
     <div class="gov-utility-bar">
@@ -10,7 +16,7 @@
 
     <header class="gov-header">
         <div class="gov-container gov-header-inner">
-            <NavLink href="/user/dashboard" class="gov-brand" aria-label="GovConnect home">
+            <NavLink href="@(isAdminRoute ? "/admin/dashboard" : "/user/dashboard")" class="gov-brand" aria-label="GovConnect home">
                 <img src="/icons/logo.svg" alt="GovConnect" />
                 <span class="gov-brand-copy">
                     <strong>GovConnect</strong>
@@ -18,70 +24,108 @@
                 </span>
             </NavLink>
 
-            <nav class="gov-nav" aria-label="Primary navigation">
-                <NavLink href="/user/dashboard" Match="NavLinkMatch.All">
-                    <img src="/icons/nav-dashboard.svg" alt="" aria-hidden="true" />
-                    <span>Dashboard</span>
-                </NavLink>
-                <NavLink href="/user/services">
-                    <img src="/icons/nav-services.svg" alt="" aria-hidden="true" />
-                    <span>Services</span>
-                </NavLink>
-                <NavLink href="/user/requests">
-                    <img src="/icons/nav-requests.svg" alt="" aria-hidden="true" />
-                    <span>My Requests</span>
-                </NavLink>
-                <NavLink href="/user/requests">
-                    <img src="/icons/nav-track.svg" alt="" aria-hidden="true" />
-                    <span>Track</span>
-                </NavLink>
-            </nav>
+            @if (isAdminRoute)
+            {
+                <nav class="gov-nav" aria-label="Admin navigation">
+                    <NavLink href="/admin/dashboard" Match="NavLinkMatch.All">
+                        <img src="/icons/nav-dashboard.svg" alt="" aria-hidden="true" />
+                        <span>Dashboard</span>
+                    </NavLink>
+                    <NavLink href="/admin/requests">
+                        <img src="/icons/nav-requests.svg" alt="" aria-hidden="true" />
+                        <span>Requests</span>
+                    </NavLink>
+                    <NavLink href="/admin/requests">
+                        <img src="/icons/search.svg" alt="" aria-hidden="true" />
+                        <span>Manage</span>
+                    </NavLink>
+                </nav>
+            }
+            else
+            {
+                <nav class="gov-nav" aria-label="Primary navigation">
+                    <NavLink href="/user/dashboard" Match="NavLinkMatch.All">
+                        <img src="/icons/nav-dashboard.svg" alt="" aria-hidden="true" />
+                        <span>Dashboard</span>
+                    </NavLink>
+                    <NavLink href="/user/services">
+                        <img src="/icons/nav-services.svg" alt="" aria-hidden="true" />
+                        <span>Services</span>
+                    </NavLink>
+                    <NavLink href="/user/requests">
+                        <img src="/icons/nav-requests.svg" alt="" aria-hidden="true" />
+                        <span>My Requests</span>
+                    </NavLink>
+                    <NavLink href="/user/requests">
+                        <img src="/icons/nav-track.svg" alt="" aria-hidden="true" />
+                        <span>Track</span>
+                    </NavLink>
+                </nav>
+            }
 
-            <div class="gov-account-actions">
-                <div class="notification-menu">
-                <button type="button" class="gov-icon-button notification-trigger" aria-label="Notifications" aria-expanded="@showNotifications" @onclick="ToggleNotifications">
-                    <img src="/icons/notifications.svg" alt="" aria-hidden="true" />
-                    @if (UnreadNotificationCount > 0)
-                    {
-                        <span class="notification-count">@UnreadNotificationCount</span>
-                    }
-                </button>
-                @if (showNotifications)
-                {
-                    <div class="notification-dropdown" role="region" aria-label="Recent notifications">
-                        <div class="notification-header">
-                            <div><strong>Notifications</strong><span>@UnreadNotificationCount unread update@(UnreadNotificationCount == 1 ? "" : "s")</span></div>
+            @if (isAdminRoute)
+            {
+                <div class="gov-account-actions">
+                    <NavLink href="/admin/dashboard" class="gov-profile-button" aria-label="Admin profile">
+                        <img src="/icons/profile.svg" alt="" aria-hidden="true" />
+                        <span>Admin Account</span>
+                    </NavLink>
+                </div>
+            }
+            else
+            {
+                <div class="gov-account-actions">
+                    <div class="notification-menu">
+                        <button type="button" class="gov-icon-button notification-trigger" aria-label="Notifications" aria-expanded="@showNotifications" @onclick="ToggleNotifications">
+                            <img src="/icons/notifications.svg" alt="" aria-hidden="true" />
                             @if (UnreadNotificationCount > 0)
                             {
-                                <button type="button" @onclick="MarkAllAsRead">Mark all as read</button>
+                                <span class="notification-count">@UnreadNotificationCount</span>
                             }
-                        </div>
-                        <div class="notification-list">
-                            @foreach (var notification in notifications)
-                            {
-                                <NavLink href="@notification.Href" class="@(notification.IsRead ? "notification-item" : "notification-item unread")" @onclick="() => OpenNotification(notification)">
-                                    <span class="notification-type @notification.Kind" aria-hidden="true">@notification.Symbol</span>
-                                    <span class="notification-copy">
-                                        <strong>@notification.Title</strong>
-                                        <span>@notification.Message</span>
-                                        <time>@notification.Time</time>
-                                    </span>
-                                    @if (!notification.IsRead)
+                        </button>
+                        @if (showNotifications)
+                        {
+                            <div class="notification-dropdown" role="region" aria-label="Recent notifications">
+                                <div class="notification-header">
+                                    <div>
+                                        <strong>Notifications</strong>
+                                        <span>@UnreadNotificationCount unread update@(UnreadNotificationCount == 1 ? "" : "s")</span>
+                                    </div>
+                                    @if (UnreadNotificationCount > 0)
                                     {
-                                        <span class="unread-dot" aria-label="Unread"></span>
+                                        <button type="button" @onclick="MarkAllAsRead">Mark all as read</button>
                                     }
+                                </div>
+
+                                <div class="notification-list">
+                                    @foreach (var notification in notifications)
+                                    {
+                                        <NavLink href="@notification.Href" class="@(notification.IsRead ? "notification-item" : "notification-item unread")" @onclick="() => OpenNotification(notification)">
+                                            <span class="notification-type @notification.Kind" aria-hidden="true">@notification.Symbol</span>
+                                            <span class="notification-copy">
+                                                <strong>@notification.Title</strong>
+                                                <span>@notification.Message</span>
+                                                <time>@notification.Time</time>
+                                            </span>
+                                            @if (!notification.IsRead)
+                                            {
+                                                <span class="unread-dot" aria-label="Unread"></span>
+                                            }
+                                        </NavLink>
+                                    }
+                                </div>
+                                <NavLink href="/user/requests" class="notification-footer" @onclick="CloseNotifications">
+                                    View all document requests <span aria-hidden="true">→</span>
                                 </NavLink>
-                            }
-                        </div>
-                        <NavLink href="/user/requests" class="notification-footer" @onclick="CloseNotifications">View all document requests <span aria-hidden="true">→</span></NavLink>
+                            </div>
+                        }
                     </div>
-                }
+                    <NavLink href="/user/dashboard" class="gov-profile-button" aria-label="Account profile">
+                        <img src="/icons/profile.svg" alt="" aria-hidden="true" />
+                        <span>Citizen Account</span>
+                    </NavLink>
                 </div>
-                <NavLink href="/user/dashboard" class="gov-profile-button" aria-label="Account profile">
-                    <img src="/icons/profile.svg" alt="" aria-hidden="true" />
-                    <span>Citizen Account</span>
-                </NavLink>
-            </div>
+            }
         </div>
     </header>
 
@@ -113,6 +157,7 @@
     {
         foreach (var notification in notifications) notification.IsRead = true;
     }
+
     private void OpenNotification(PortalNotification notification)
     {
         notification.IsRead = true;
