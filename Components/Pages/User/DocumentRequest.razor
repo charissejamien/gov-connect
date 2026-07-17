@@ -1,84 +1,60 @@
 @page "/user/requests"
+@inject NavigationManager Navigation
+@using gov_connect.Components.Shared
 
+<PageTitle>My Requests | GovConnect</PageTitle>
 
-@rendermode InteractiveServer
+<div class="requests-page">
+    <header class="requests-page-heading">
+        <div><p class="section-label">Citizen Applications</p><h1>My Requests</h1><p>Manage and monitor all your document requests and appointments.</p></div>
+        <button class="new-request-button" @onclick='() => Navigation.NavigateTo("/user/services")'><span aria-hidden="true">+</span> Start a new request</button>
+    </header>
 
-<div class="mt-20 ml-10 mr-10">
-    <div class="flex justify-between items-center">
-        <div>
-            <h2 class="text-[28px] font-bold">My Requests</h2>
-            <p class="text-gray-600">Manage and track all your document requests</p>
-        </div>
-        <div>
-            <button class="bg-govBlue text-white px-6 py-1.5 rounded-xl">Request a Document</button>
-        </div>
-    </div>
+    <nav class="request-tabs" aria-label="Filter requests by status">
+        @foreach (var tab in tabs)
+        {
+            <button class="@(activeTab == tab ? "active" : "")" @onclick="() => activeTab = tab">@tab <span>@GetTabCount(tab)</span></button>
+        }
+    </nav>
 
-    <div class="mt-10 border-b-2 border-slate-200 px-5 text-[14px] flex gap-16">
-        <button @onclick='() => SetActiveTab("All")'
-                class="pb-2 transition-all @(ActiveTab == "All" ? "text-blue-600 font-medium" : "")">
-            All (24)
-        </button>
-
-        <button @onclick='() => SetActiveTab("Pending")'
-                class="pb-2 transition-all @(ActiveTab == "Pending" ? "text-blue-600 font-medium" : "")">
-            Pending (3)
-        </button>
-
-        <button @onclick='() => SetActiveTab("Processing")'
-                class="pb-2 transition-all @(ActiveTab == "Processing" ? "text-blue-600 font-medium" : "")">
-            Processing (3)
-        </button>
-
-        <button @onclick='() => SetActiveTab("Ready")'
-                class="pb-2 transition-all @(ActiveTab == "Ready" ? "text-blue-600 font-medium" : "")">
-            Ready (9)
-        </button>
-
-        <button @onclick='() => SetActiveTab("Completed")'
-                class="pb-2 transition-all @(ActiveTab == "Completed" ? "text-blue-600 font-medium" : "")">
-            Completed (8)
-        </button>
-    </div>
-
-    <div class="bg-[#D9D7E3]/40 border rounded-xl p-3 mt-7">
-        <div class="flex justify-between">
-            <div class="flex gap-5">
-                <img src="icons/birth-certificate.svg" alt="" class="w-20 h-20">
-                <div>
-                    <h3 class="text-[20px]">Birth Certificate</h3>
-                    <p class="text-[14px] leading-[15px] text-gray-500">GC-35356-5436 PSA</p>
-                    <p class="text-[14px] leading-[20px] text-gray-500">Submitted 12-09-04</p>
+    <div class="request-list" aria-live="polite">
+        @foreach (var request in FilteredRequests)
+        {
+            <article class="request-list-card">
+                <div class="request-card-main">
+                    <AgencyBadge Agency="@request.Agency" />
+                    <div class="request-card-copy">
+                        <div class="request-title-row"><div><h2>@request.Document</h2><p>@request.AgencyName</p></div><span class="request-status-tag status-@request.Status.ToLowerInvariant()">@request.Status</span></div>
+                        <dl><div><dt>Reference number</dt><dd>@request.Reference</dd></div><div><dt>Submitted</dt><dd>@request.Submitted</dd></div><div><dt>Service type</dt><dd>@request.ServiceType</dd></div></dl>
+                    </div>
                 </div>
-            </div>
-            <div>
-                <button
-                class="bg-[#8DAEDD] px-2 py-1 rounded-md text-[#003E86] text-[14px] font-medium">Processing</button>
-                <button class="bg-[#C3D0EB] px-2 py-1 rounded-md text-[#003E86] text-[14px] font-medium">Track</button>
-            </div>
-        </div>
-        <div class="mt-5">
-            <div class="flex justify-between items-center mb-1">
-                <p class="text-[14px] text-gray-600">Progress</p>
-                <span class="text-[12px] font-semibold text-gray-700">@ProgressPercentage%</span>
-            </div>
-
-            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden relative">
-                <div class="absolute top-0 left-0 h-full transition-all duration-500 ease-out"
-                     style="width: 100%; background: linear-gradient(to right, #276FC2, #990000); clip-path: inset(0 @(100 - ProgressPercentage)% 0 0);">
+                <div class="request-card-progress">
+                    <div><span>Application progress</span><strong>@request.Progress%</strong></div>
+                    <div class="request-list-progress"><span style="width: @request.Progress%"></span></div>
+                    <p>@request.NextStep</p>
                 </div>
-            </div>
-        </div>
+                <div class="request-card-actions"><button @onclick="() => Track(request.Reference)"><span aria-hidden="true">⌕</span> Track request</button></div>
+            </article>
+        }
+        @if (!FilteredRequests.Any())
+        {
+            <div class="requests-empty"><strong>No @activeTab.ToLowerInvariant() requests</strong><p>Your requests with this status will appear here.</p></div>
+        }
     </div>
-
 </div>
 
 @code {
-    private string ActiveTab = "All";
-    private int ProgressPercentage = 75;
-
-    private void SetActiveTab(string tabName)
-    {
-        ActiveTab = tabName;
-    }
+    private string activeTab = "All";
+    private readonly string[] tabs = ["All", "Pending", "Processing", "Ready", "Completed"];
+    private readonly RequestSummary[] requests =
+    [
+        new("GC-2025-001235", "Birth Certificate", "PSA", "Philippine Statistics Authority", "Ready", 100, "12 December 2025", "Online request", "Ready for pickup at the PSA Main Office."),
+        new("GC-2025-001198", "Philippine Passport", "DFA", "Department of Foreign Affairs", "Processing", 45, "10 December 2025", "Appointment", "Application is undergoing identity verification."),
+        new("GC-2025-001174", "National ID", "PhilSys", "Philippine Identification System", "Pending", 15, "9 December 2025", "Appointment", "Waiting for your scheduled biometric appointment."),
+        new("GC-2025-001106", "NBI Clearance", "NBI", "National Bureau of Investigation", "Completed", 100, "2 December 2025", "Appointment", "Request completed and released.")
+    ];
+    private IEnumerable<RequestSummary> FilteredRequests => activeTab == "All" ? requests : requests.Where(r => r.Status == activeTab);
+    private int GetTabCount(string tab) => tab == "All" ? requests.Length : requests.Count(r => r.Status == tab);
+    private void Track(string reference) => Navigation.NavigateTo($"/user/track?reference={Uri.EscapeDataString(reference)}");
+    private sealed record RequestSummary(string Reference, string Document, string Agency, string AgencyName, string Status, int Progress, string Submitted, string ServiceType, string NextStep);
 }

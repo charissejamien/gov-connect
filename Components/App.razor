@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="@Assets["gov-connect.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/ico" href="favicon.ico" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="InteractiveServer" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -30,7 +30,7 @@
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>

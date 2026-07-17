@@ -1,0 +1,58 @@
+<span class="agency-badge agency-@AgencyKey" title="@AgencyName" aria-label="@AgencyName">
+    <span class="agency-badge-ring" aria-hidden="true">
+        <span class="agency-badge-star">★</span>
+        <strong>@DisplayAcronym</strong>
+        <span class="agency-badge-mark"></span>
+    </span>
+</span>
+
+@code {
+    [Parameter, EditorRequired] public string Agency { get; set; } = string.Empty;
+
+    private string AgencyKey => Agency.ToUpperInvariant() switch
+    {
+        var value when value.Contains("PSA") => "psa",
+        var value when value.Contains("PHILSYS") => "philsys",
+        var value when value.Contains("LTO") => "lto",
+        var value when value.Contains("DFA") => "dfa",
+        var value when value.Contains("NBI") => "nbi",
+        var value when value.Contains("PNP") => "pnp",
+        var value when value.Contains("BIR") => "bir",
+        var value when value.Contains("DTI") => "dti",
+        var value when value.Contains("SEC") => "sec",
+        var value when value.Contains("SSS") => "sss",
+        var value when value.Contains("PHILHEALTH") => "philhealth",
+        var value when value.Contains("PAG-IBIG") => "pagibig",
+        var value when value.Contains("DSWD") => "dswd",
+        var value when value.Contains("LGU") => "lgu",
+        _ => "government"
+    };
+
+    private string DisplayAcronym => AgencyKey switch
+    {
+        "philsys" => "PHILSYS",
+        "philhealth" => "PHIC",
+        "pagibig" => "HDMF",
+        "government" => Agency.Length <= 7 ? Agency.ToUpperInvariant() : "GOV",
+        _ => AgencyKey.ToUpperInvariant()
+    };
+
+    private string AgencyName => AgencyKey switch
+    {
+        "psa" => "Philippine Statistics Authority",
+        "philsys" => "Philippine Identification System",
+        "lto" => "Land Transportation Office",
+        "dfa" => "Department of Foreign Affairs",
+        "nbi" => "National Bureau of Investigation",
+        "pnp" => "Philippine National Police",
+        "bir" => "Bureau of Internal Revenue",
+        "dti" => "Department of Trade and Industry",
+        "sec" => "Securities and Exchange Commission",
+        "sss" => "Social Security System",
+        "philhealth" => "Philippine Health Insurance Corporation",
+        "pagibig" => "Home Development Mutual Fund",
+        "dswd" => "Department of Social Welfare and Development",
+        "lgu" => "Local Government Unit",
+        _ => Agency
+    };
+}

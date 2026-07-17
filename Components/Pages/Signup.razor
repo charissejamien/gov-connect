@@ -1,14 +1,13 @@
 @page "/signup"
 @layout Components.Layout.AuthLayout
-@rendermode InteractiveServer
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
 
-<div class="min-h-screen w-full flex flex-col justify-center items-center px-4 bg-cover bg-no-repeat bg-center"
+<div class="auth-page min-h-screen w-full flex flex-col justify-center items-center px-4 bg-cover bg-no-repeat bg-center"
      style="background-image: url('icons/authentication-bg.svg');">
 
     <div
-        class="w-full max-w-md bg-white border border-slate-200 border-t-[9px] border-t-[#FFC456] shadow-xl rounded-2xl p-10 flex flex-col items-center gap-6">
+        class="auth-card w-full max-w-md bg-white border border-slate-200 border-t-[9px] border-t-[#FFC456] shadow-xl rounded-2xl p-10 flex flex-col items-center gap-6">
 
         <div class="flex flex-col items-center text-center">
             <img src="icons/authentication.svg" alt="Auth Icon" class="w-12 h-12 mb-2">
