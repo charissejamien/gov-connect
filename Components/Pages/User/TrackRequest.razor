@@ -1,0 +1,108 @@
+@page "/user/track"
+@rendermode InteractiveServer
+
+<PageTitle>Track a Request | GovConnect</PageTitle>
+
+<div class="tracking-page">
+    <header class="tracking-heading"><p class="section-label">Request Monitoring</p><h1>Track Your Request</h1><p>Enter your reference number to view real-time status updates.</p></header>
+    <div class="tracking-search-row">
+        <input aria-label="Reference number" @bind="referenceNumber" placeholder="Enter reference number" />
+        <button @onclick="Track">Track request</button>
+    </div>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="tracking-error" role="alert">@errorMessage</div>
+    }
+
+    @if (currentRequest is not null)
+    {
+        <article class="tracking-result">
+            <header>
+                <div><p class="section-label">Application Record</p><h2>@currentRequest.Document</h2><p>@currentRequest.Reference · @currentRequest.Agency</p></div>
+                <span class="request-status-tag status-@currentRequest.Status.ToLowerInvariant()">@StatusLabel</span>
+            </header>
+            <div class="tracking-progress">
+                <div><span>Overall progress</span><strong>@currentRequest.Progress%</strong></div>
+                <div><span style="width: @currentRequest.Progress%"></span></div>
+            </div>
+            <div class="tracking-status-explanation status-note-@currentRequest.Status.ToLowerInvariant()">
+                <strong>@StatusHeading</strong><span>@currentRequest.StatusMessage</span>
+            </div>
+            <ol class="tracking-timeline">
+                @for (var index = 0; index < steps.Length; index++)
+                {
+                    var step = steps[index];
+                    var stepState = GetStepState(index);
+                    <li class="@stepState">
+                        <span class="tracking-check" aria-hidden="true">@(stepState == "completed" ? "✓" : stepState == "current" ? "•" : (index + 1).ToString())</span>
+                        <div>
+                            <span class="timeline-state-label">@(stepState == "completed" ? "Completed" : stepState == "current" ? "Current stage" : "Upcoming")</span>
+                            <h3>@step.Title</h3>
+                            <p>@GetStepDescription(step, stepState)</p>
+                            <time>@GetStepDate(index, stepState)</time>
+                        </div>
+                    </li>
+                }
+            </ol>
+            <footer><div><span>Issuing agency</span><strong>@currentRequest.Agency</strong></div><div><span>Submitted</span><strong>@currentRequest.Submitted</strong></div><div><span>Estimated release</span><strong>@currentRequest.EstimatedRelease</strong></div></footer>
+        </article>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "reference")] public string? ReferenceQuery { get; set; }
+    private string referenceNumber = "GC-2025-001235";
+    private string errorMessage = string.Empty;
+    private TrackedRequest? currentRequest;
+
+    private readonly Step[] steps =
+    [
+        new("Application submitted", "The application has been received by GovConnect."),
+        new("Payment verified", "The payment has been received and confirmed."),
+        new("Requirements verification", "The issuing agency is reviewing the submitted requirements."),
+        new("Agency processing", "The requested document is being prepared."),
+        new("Quality review", "The completed document is undergoing final validation."),
+        new("Release", "The document is ready for pickup or delivery.")
+    ];
+
+    private readonly TrackedRequest[] requests =
+    [
+        new("GC-2025-001235", "Birth Certificate", "Philippine Statistics Authority (PSA)", "Ready", 100, 5, "12 December 2025", "19 December 2025", "Your document has completed processing and is ready for pickup."),
+        new("GC-2025-001198", "Philippine Passport", "Department of Foreign Affairs (DFA)", "Processing", 45, 2, "10 December 2025", "Pending agency confirmation", "Your completed stages are shown below. The DFA is currently verifying your requirements."),
+        new("GC-2025-001174", "National ID", "Philippine Identification System (PhilSys)", "Pending", 15, 0, "9 December 2025", "To be determined", "Your application is pending. Processing will begin after your scheduled biometric appointment."),
+        new("GC-2025-001106", "NBI Clearance", "National Bureau of Investigation (NBI)", "Completed", 100, 6, "2 December 2025", "4 December 2025", "This request has been completed and the document was released.")
+    ];
+
+    private string StatusLabel => currentRequest?.Status switch { "Ready" => "Ready for pickup", "Processing" => "Processing", "Pending" => "Pending", "Completed" => "Completed", _ => "Unknown" };
+    private string StatusHeading => currentRequest?.Status switch { "Ready" => "Ready for release", "Processing" => "Application in progress", "Pending" => "Waiting to begin", "Completed" => "Request completed", _ => "Status unavailable" };
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(ReferenceQuery)) referenceNumber = ReferenceQuery.Trim().ToUpperInvariant();
+        LoadRequest();
+    }
+
+    private void Track()
+    {
+        referenceNumber = referenceNumber.Trim().ToUpperInvariant();
+        LoadRequest();
+    }
+
+    private void LoadRequest()
+    {
+        currentRequest = requests.FirstOrDefault(r => r.Reference.Equals(referenceNumber, StringComparison.OrdinalIgnoreCase));
+        errorMessage = currentRequest is null ? "No request was found with that reference number." : string.Empty;
+    }
+
+    private string GetStepState(int index) => currentRequest is null ? "upcoming" : index < currentRequest.ActiveStep ? "completed" : index == currentRequest.ActiveStep ? "current" : "upcoming";
+    private string GetStepDescription(Step step, string state) => state == "upcoming" ? "This stage has not started yet." : step.Description;
+    private string GetStepDate(int index, string state) => state switch
+    {
+        "completed" => $"Completed · {currentRequest!.Submitted}",
+        "current" => currentRequest!.Status == "Pending" ? "Awaiting appointment" : "In progress",
+        _ => "Not started"
+    };
+
+    private sealed record Step(string Title, string Description);
+    private sealed record TrackedRequest(string Reference, string Document, string Agency, string Status, int Progress, int ActiveStep, string Submitted, string EstimatedRelease, string StatusMessage);
+}

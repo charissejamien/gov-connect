@@ -7,8 +7,8 @@
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
 
-<div class="min-h-screen bg-[#F0F2F9] py-12 px-4 md:px-8 font-sans">
-    <div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+<div class="document-flow-page min-h-screen bg-[#F0F2F9] py-12 px-4 md:px-8 font-sans">
+    <div class="document-flow-card max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
 
         <h2 class="text-3xl font-bold text-center text-gray-900 mb-2">@(RequiresAppointment ? "Appointment Application" : "Government Services")</h2>
         @if (RequiresAppointment)
