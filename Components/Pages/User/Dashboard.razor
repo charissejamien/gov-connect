@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
+@using gov_connect.Components.Shared
 
 <div class="citizen-dashboard">
     <div class="dashboard-heading">
@@ -87,10 +88,10 @@
             <NavLink href="/user/services" class="text-link">Browse all services <span aria-hidden="true">→</span></NavLink>
         </div>
         <div class="services-grid">
-            <button class="service-card" @onclick='() => RequestDoc("birth-certificate")'><img src="/icons/birth-certificate.svg" alt="" /><span><strong>Birth Certificate</strong><small>Philippine Statistics Authority</small></span><b>PSA</b></button>
-            <button class="service-card" @onclick='() => RequestDoc("national-id")'><img src="/icons/national-id.svg" alt="" /><span><strong>National ID</strong><small>Philippine Identification System</small></span><b>PhilSys</b></button>
-            <button class="service-card" @onclick='() => RequestDoc("drivers-license")'><img src="/icons/drivers-license.svg" alt="" /><span><strong>Driver's License</strong><small>Land Transportation Office</small></span><b>LTO</b></button>
-            <button class="service-card" @onclick='() => RequestDoc("philippine-passport")'><img src="/icons/for-pickup.svg" alt="" /><span><strong>Philippine Passport</strong><small>Department of Foreign Affairs</small></span><b>DFA</b></button>
+            <button class="service-card" @onclick='() => RequestDoc("birth-certificate")'><AgencyBadge Agency="PSA" /><span><strong>Birth Certificate</strong><small>Philippine Statistics Authority</small></span><b class="agency-tag agency-tag-psa">PSA</b></button>
+            <button class="service-card" @onclick='() => RequestDoc("national-id")'><AgencyBadge Agency="PhilSys" /><span><strong>National ID</strong><small>Philippine Identification System</small></span><b class="agency-tag agency-tag-philsys">PhilSys</b></button>
+            <button class="service-card" @onclick='() => RequestDoc("drivers-license")'><AgencyBadge Agency="LTO" /><span><strong>Driver's License</strong><small>Land Transportation Office</small></span><b class="agency-tag agency-tag-lto">LTO</b></button>
+            <button class="service-card" @onclick='() => RequestDoc("philippine-passport")'><AgencyBadge Agency="DFA" /><span><strong>Philippine Passport</strong><small>Department of Foreign Affairs</small></span><b class="agency-tag agency-tag-dfa">DFA</b></button>
         </div>
     </section>
 </div>

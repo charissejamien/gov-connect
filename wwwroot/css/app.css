@@ -199,6 +199,44 @@ button, select { cursor: pointer; }
 .service-card small { margin-top: 4px; color: var(--gov-muted); font-size: 10px; }
 .service-card b { padding: 4px 7px; background: #D9D7E3; color: #465269; font-size: 9px; letter-spacing: .06em; }
 
+/* Consistent agency identifiers. These are portal badges, not replicas of official seals. */
+.agency-badge { --agency-primary: #276FC2; --agency-secondary: #FFC456; width: 54px; height: 54px; flex: none; display: grid; place-items: center; padding: 3px; border: 2px solid var(--agency-primary); border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(29,45,68,.13); }
+.agency-badge-ring { position: relative; width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; border: 2px solid var(--agency-secondary); border-radius: 50%; background: var(--agency-primary); color: white; }
+.agency-badge-ring strong { position: relative; z-index: 2; max-width: 42px; color: white; font-size: 9px; font-weight: 900; line-height: 1; letter-spacing: -.02em; text-align: center; }
+.agency-badge-star { position: absolute; top: 2px; color: var(--agency-secondary); font-size: 7px; line-height: 1; }
+.agency-badge-mark { position: absolute; right: -5px; bottom: -7px; width: 25px; height: 25px; transform: rotate(18deg); border-radius: 50%; background: var(--agency-secondary); opacity: .38; }
+.agency-psa { --agency-primary: #123f73; --agency-secondary: #f4c542; }
+.agency-philsys { --agency-primary: #6f1519; --agency-secondary: #e7b744; }
+.agency-lto { --agency-primary: #183d71; --agency-secondary: #d5a62e; }
+.agency-dfa { --agency-primary: #003f87; --agency-secondary: #c69a36; }
+.agency-nbi { --agency-primary: #214c82; --agency-secondary: #e1b64b; }
+.agency-pnp { --agency-primary: #1d4374; --agency-secondary: #d33c3c; }
+.agency-bir { --agency-primary: #9b1d25; --agency-secondary: #e1b64b; }
+.agency-dti { --agency-primary: #1767a9; --agency-secondary: #e23b3b; }
+.agency-sec { --agency-primary: #233e72; --agency-secondary: #c9a44c; }
+.agency-sss { --agency-primary: #176a9a; --agency-secondary: #efc544; }
+.agency-philhealth { --agency-primary: #167a59; --agency-secondary: #f2ca43; }
+.agency-pagibig { --agency-primary: #125da8; --agency-secondary: #d64242; }
+.agency-dswd { --agency-primary: #235fa2; --agency-secondary: #da3e3e; }
+.agency-lgu { --agency-primary: #276FC2; --agency-secondary: #FFC456; }
+.service-card > .agency-badge { width: 48px; height: 48px; justify-self: center; }
+.service-card > .agency-badge .agency-badge-ring strong { font-size: 8px; }
+.agency-tag, .service-card b.agency-tag { display: inline-flex; align-items: center; justify-content: center; width: fit-content; padding: 5px 9px; border: 1px solid #b7c5d5; border-radius: 999px; background: #e8edf3; color: #344a63; font-size: 11px; font-weight: 800; line-height: 1; letter-spacing: .045em; text-transform: uppercase; }
+.agency-tag-psa { border-color: #a8bed7; background: #e4edf7; color: #123f73; }
+.agency-tag-philsys { border-color: #d7a9aa; background: #f6e7e7; color: #6f1519; }
+.agency-tag-lto { border-color: #a7b9d2; background: #e6ecf5; color: #183d71; }
+.agency-tag-dfa { border-color: #9db8d8; background: #e3edf8; color: #003f87; }
+.agency-tag-nbi { border-color: #a8bdd5; background: #e6edf5; color: #214c82; }
+.agency-tag-pnp { border-color: #a9b9d0; background: #e7ecf3; color: #1d4374; }
+.agency-tag-bir { border-color: #d7a4a8; background: #f7e5e7; color: #8c1720; }
+.agency-tag-dti { border-color: #9fc4df; background: #e3f0f8; color: #155d98; }
+.agency-tag-sec { border-color: #aeb8cc; background: #e9ecf2; color: #233e72; }
+.agency-tag-sss { border-color: #9fc9dc; background: #e1f0f6; color: #155f8a; }
+.agency-tag-philhealth { border-color: #9bcdbb; background: #e2f3ed; color: #126747; }
+.agency-tag-pagibig { border-color: #9dbfe0; background: #e3eef8; color: #12599e; }
+.agency-tag-dswd { border-color: #a3bfdd; background: #e5edf7; color: #235a96; }
+.agency-tag-lgu { border-color: #a5c3e4; background: #e5eff9; color: #225f9f; }
+
 /* Formalize shared content cards and controls without changing page behavior. */
 .gov-main .rounded-3xl, .gov-main .rounded-2xl { border-radius: 8px !important; }
 .gov-main .rounded-xl { border-radius: 6px !important; }
