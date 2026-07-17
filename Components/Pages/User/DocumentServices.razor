@@ -3,6 +3,7 @@
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
 @using gov_connect.Data.Models
+@using gov_connect.Components.Shared
 
 <div class="min-h-screen bg-[#F0F2F9] p-8 font-sans">
     <div class="max-w-7xl mx-auto">
@@ -51,7 +52,8 @@
                         class="bg-[#E4E8F4] hover:bg-[#DDE2EE] rounded-2xl p-6 transition-all duration-200 flex flex-col justify-between shadow-sm relative group">
 
                         <div class="flex justify-between items-start mb-4">
-                            <div class="text-[#0D47A1] p-1 bg-white/40 rounded-lg">
+                            <AgencyBadge Agency="@doc.Agency" />
+                            <div class="hidden text-[#0D47A1] p-1 bg-white/40 rounded-lg">
                                 @if (doc.IconType == "star")
                                 {
                                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -102,8 +104,7 @@
                                 }
                             </div>
 
-                            <span
-                                class="bg-[#CFD5E5] text-gray-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            <span class="agency-tag agency-tag-@GetAgencyKey(doc.Agency)">
                                 @doc.Agency
                             </span>
                         </div>
@@ -183,4 +184,23 @@
             Navigation.NavigateTo($"/user/request/{slug.ToLower()}");
         }
     }
+
+    private static string GetAgencyKey(string agency) => agency.ToUpperInvariant() switch
+    {
+        var value when value.Contains("PSA") => "psa",
+        var value when value.Contains("PHILSYS") => "philsys",
+        var value when value.Contains("LTO") => "lto",
+        var value when value.Contains("DFA") => "dfa",
+        var value when value.Contains("NBI") => "nbi",
+        var value when value.Contains("PNP") => "pnp",
+        var value when value.Contains("BIR") => "bir",
+        var value when value.Contains("DTI") => "dti",
+        var value when value.Contains("SEC") => "sec",
+        var value when value.Contains("SSS") => "sss",
+        var value when value.Contains("PHILHEALTH") => "philhealth",
+        var value when value.Contains("PAG-IBIG") => "pagibig",
+        var value when value.Contains("DSWD") => "dswd",
+        var value when value.Contains("LGU") => "lgu",
+        _ => "government"
+    };
 }
