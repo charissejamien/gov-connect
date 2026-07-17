@@ -74,6 +74,7 @@ button, select { cursor: pointer; }
 .gov-nav { display: flex; align-items: stretch; justify-content: center; }
 .gov-nav a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 17px; color: #465269; text-decoration: none; font-size: 14px; font-weight: 600; }
 .gov-nav a img { width: 19px; height: 19px; opacity: .78; }
+.nav-contact-symbol { width: 19px; height: 19px; display: grid; place-items: center; border: 2px solid currentColor; border-radius: 50%; font-size: 11px; font-weight: 900; line-height: 1; }
 .gov-nav a:hover { color: var(--gov-blue); background: #f5f8fc; }
 .gov-nav a.active { color: var(--gov-blue-dark); background: #f1f6fc; }
 .gov-nav a.active::after { content: ""; position: absolute; height: 3px; background: var(--gov-gold); left: 15px; right: 15px; bottom: 0; }
@@ -545,4 +546,45 @@ body { font-size: 16px; line-height: 1.5; }
   .admin-page { width: calc(100% - 24px) !important; padding-top: 28px !important; }
   .admin-page table { min-width: 760px; }
   .auth-card { padding: 28px 22px !important; }
+}
+
+/* Agency assistance directory */
+.agency-directory-page { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 42px 0 58px; }
+.agency-directory-heading h1 { margin: 5px 0 6px; color: #202b3b; font-size: clamp(30px, 3vw, 38px); }
+.agency-directory-heading p:last-child { max-width: 780px; margin: 0; color: #596577; font-size: 16px; }
+.agency-contact-notice { margin-top: 24px; display: flex; flex-direction: column; gap: 3px; padding: 15px 17px; border: 1px solid #e5c78f; border-left: 5px solid #D89843; background: #fff6e6; color: #675339; }
+.agency-contact-notice strong { font-size: 14px; }
+.agency-contact-notice span { font-size: 13px; }
+.agency-directory-tools { margin-top: 22px; }
+.agency-directory-tools input { width: min(500px, 100%); min-height: 54px; padding: 0 16px; border: 1px solid #c7ceda !important; border-radius: 5px; background: white; font: inherit; font-size: 15px; }
+.agency-contact-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.agency-contact-card { display: flex; flex-direction: column; padding: 23px; border: 1px solid #d5d1e2; border-top: 4px solid #276FC2; background: #fcfbff; box-shadow: 0 4px 12px rgba(55,49,82,.05); scroll-margin-top: 115px; }
+.agency-contact-card:target { border-color: #D89843; box-shadow: 0 0 0 3px rgba(216,152,67,.18); }
+.agency-contact-card > header { display: flex; align-items: center; gap: 15px; }
+.agency-contact-card > header > div { min-width: 0; }
+.agency-contact-card h2 { margin: 7px 0 2px; color: #253348; font-size: 19px; }
+.agency-contact-card header p { margin: 0; color: #626d7e; font-size: 13px; line-height: 1.45; }
+.agency-contact-card dl { margin: 21px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.agency-contact-card dl div { padding-top: 11px; border-top: 1px solid #ddd9e7; }
+.agency-contact-card dt { color: #697486; font-size: 11px; text-transform: uppercase; letter-spacing: .055em; }
+.agency-contact-card dd { margin: 5px 0 0; overflow-wrap: anywhere; color: #2f3e52; font-size: 13px; font-weight: 700; }
+.agency-contact-card dd a { color: #1f62a9; text-decoration: none; }
+.agency-contact-card dd a:hover { text-decoration: underline; }
+.agency-contact-actions { margin-top: auto; display: flex; gap: 9px; }
+.agency-contact-actions a { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; border: 1px solid #276FC2; border-radius: 4px; background: #276FC2; color: white; font-size: 13px; font-weight: 700; text-decoration: none; }
+.agency-contact-actions a.secondary { border-color: #aebccc; background: white; color: #31516f; }
+.service-card-actions { display: grid; grid-template-columns: 1.35fr 1fr; gap: 8px; }
+.services-page-inner > .grid .service-card-actions button { width: 100%; min-height: 46px; padding: 0 9px; font-size: 12px; }
+.services-page-inner > .grid .agency-contact-button { border: 1px solid #9cabc0 !important; background: transparent !important; color: #344d68 !important; }
+.services-page-inner > .grid .agency-contact-button:hover { background: rgba(255,255,255,.52) !important; border-color: #7188a3 !important; }
+
+@media (max-width: 800px) {
+  .agency-contact-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .agency-directory-page { width: calc(100% - 24px); padding-top: 28px; }
+  .agency-contact-card dl { grid-template-columns: 1fr; }
+  .agency-contact-actions, .service-card-actions { grid-template-columns: 1fr; flex-direction: column; }
+  .agency-contact-actions a { width: 100%; }
 }

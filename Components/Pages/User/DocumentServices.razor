@@ -126,13 +126,12 @@
                             </span>
                         </div>
 
-                        <button @onclick="() => NavigateToRequestForm(doc.Slug)"
-                                class="w-full bg-[#A8C7FA] hover:bg-blue-400 text-[#002D62] font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors duration-150">
-                            @(RequiresAppointment(doc.Slug) ? "View Requirements" : "Request Document")
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </button>
+                        <div class="service-card-actions">
+                            <button @onclick="() => NavigateToRequestForm(doc.Slug)" class="service-primary-action">
+                                @(RequiresAppointment(doc.Slug) ? "View Requirements" : "Request Document")
+                            </button>
+                            <button @onclick="() => NavigateToAgencyContact(doc.Agency)" class="agency-contact-button">Contact Agency</button>
+                        </div>
                     </div>
                 }
             </div>
@@ -186,6 +185,7 @@
         }
     }
     private static bool RequiresAppointment(string slug) => slug is "philippine-passport" or "national-id" or "drivers-license" or "nbi-clearance";
+    private void NavigateToAgencyContact(string agency) => Navigation.NavigateTo($"/user/agency-contacts?agency={Uri.EscapeDataString(GetAgencyKey(agency))}#agency-{GetAgencyKey(agency)}");
 
     private static string GetAgencyKey(string agency) => agency.ToUpperInvariant() switch
     {
