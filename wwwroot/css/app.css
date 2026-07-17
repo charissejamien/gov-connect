@@ -84,6 +84,18 @@ button, select { cursor: pointer; }
 .gov-icon-button img { width: 20px; height: 20px; }
 .gov-profile-button { gap: 8px; padding: 4px 10px 4px 5px; border-radius: 4px; color: #344055; font-size: 12px; font-weight: 600; }
 .gov-profile-button img { width: 31px; height: 31px; }
+.profile-menu { position: relative; }
+.profile-menu .gov-profile-button { cursor: pointer; }
+.profile-chevron { margin-left: 2px; color: #6b7584; font-size: 15px; line-height: 1; }
+.profile-dropdown { position: absolute; z-index: 70; top: calc(100% + 11px); right: 0; width: 225px; overflow: hidden; border: 1px solid #cfd5df; background: white; box-shadow: 0 15px 38px rgba(22,40,64,.18); }
+.profile-dropdown-header { display: flex; flex-direction: column; padding: 14px 15px; border-bottom: 1px solid #e0e4ea; background: #f8f9fb; }
+.profile-dropdown-header strong { color: #263448; font-size: 14px; }
+.profile-dropdown-header span { margin-top: 2px; color: #6b7584; font-size: 11px; }
+.profile-dropdown > a, .profile-dropdown > button { width: 100%; min-height: 44px; display: flex; align-items: center; padding: 0 15px; border: 0; border-bottom: 1px solid #edf0f3; background: white; color: #3d4b5f; font: inherit; font-size: 13px; font-weight: 600; text-align: left; text-decoration: none; }
+.profile-dropdown > a:hover { background: #f3f6fa; color: #276FC2; }
+.profile-dropdown > .profile-logout { border-bottom: 0; color: #8b1d25; cursor: pointer; }
+.profile-dropdown > .profile-logout:hover { background: #fff0f0; }
+.profile-dropdown > .profile-logout:disabled { color: #8d929a; cursor: wait; }
 .notification-menu { position: relative; }
 .notification-trigger { position: relative; }
 .notification-trigger:hover { border-color: #aebbc9; background: #f5f7fa; }
@@ -587,4 +599,47 @@ body { font-size: 16px; line-height: 1.5; }
   .agency-contact-card dl { grid-template-columns: 1fr; }
   .agency-contact-actions, .service-card-actions { grid-template-columns: 1fr; flex-direction: column; }
   .agency-contact-actions a { width: 100%; }
+  .profile-dropdown { position: fixed; top: 112px; right: 12px; width: 225px; }
+}
+
+/* Progress motion: fills once when rendered and respects accessibility settings. */
+@keyframes gov-progress-fill {
+  from { transform: scaleX(0); opacity: .55; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes gov-progress-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.progress-track span,
+.request-list-progress span,
+.tracking-progress > div:last-child span,
+.tracking-progress-bar span,
+.readiness-bar span {
+  transform-origin: left center;
+  background-size: 220% 100%;
+  animation:
+    gov-progress-fill .9s cubic-bezier(.22, .75, .25, 1) both,
+    gov-progress-gradient 3.5s ease-in-out 1s infinite;
+}
+
+.progress-track,
+.request-list-progress,
+.tracking-progress > div:last-child,
+.tracking-progress-bar,
+.readiness-bar {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-track span,
+  .request-list-progress span,
+  .tracking-progress > div:last-child span,
+  .tracking-progress-bar span,
+  .readiness-bar span {
+    animation: none;
+  }
 }

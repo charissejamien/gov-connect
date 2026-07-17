@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Navigation
+@inject Supabase.Client SupabaseClient
 
 @{
     var currentPath = Navigation.ToBaseRelativePath(Navigation.Uri);
@@ -66,10 +67,15 @@
             @if (isAdminRoute)
             {
                 <div class="gov-account-actions">
-                    <NavLink href="/admin/dashboard" class="gov-profile-button" aria-label="Admin profile">
-                        <img src="/icons/profile.svg" alt="" aria-hidden="true" />
-                        <span>Admin Account</span>
-                    </NavLink>
+                    <div class="profile-menu">
+                        <button type="button" class="gov-profile-button" aria-label="Admin profile menu" aria-expanded="@showProfileMenu" @onclick="ToggleProfileMenu">
+                            <img src="/icons/profile.svg" alt="" aria-hidden="true" /><span>Admin Account</span><span class="profile-chevron" aria-hidden="true">⌄</span>
+                        </button>
+                        @if (showProfileMenu)
+                        {
+                            <div class="profile-dropdown"><div class="profile-dropdown-header"><strong>Admin Account</strong><span>GovConnect administrator</span></div><NavLink href="/admin/dashboard" @onclick="CloseProfileMenu">Account overview</NavLink><button type="button" class="profile-logout" @onclick="HandleLogout" disabled="@isLoggingOut">@(isLoggingOut ? "Signing out..." : "Log out")</button></div>
+                        }
+                    </div>
                 </div>
             }
             else
@@ -120,10 +126,20 @@
                             </div>
                         }
                     </div>
-                    <NavLink href="/user/dashboard" class="gov-profile-button" aria-label="Account profile">
-                        <img src="/icons/profile.svg" alt="" aria-hidden="true" />
-                        <span>Citizen Account</span>
-                    </NavLink>
+                    <div class="profile-menu">
+                        <button type="button" class="gov-profile-button" aria-label="Citizen profile menu" aria-expanded="@showProfileMenu" @onclick="ToggleProfileMenu">
+                            <img src="/icons/profile.svg" alt="" aria-hidden="true" /><span>Citizen Account</span><span class="profile-chevron" aria-hidden="true">⌄</span>
+                        </button>
+                        @if (showProfileMenu)
+                        {
+                            <div class="profile-dropdown">
+                                <div class="profile-dropdown-header"><strong>Citizen Account</strong><span>Manage your GovConnect session</span></div>
+                                <NavLink href="/user/dashboard" @onclick="CloseProfileMenu">Account overview</NavLink>
+                                <NavLink href="/user/requests" @onclick="CloseProfileMenu">My requests</NavLink>
+                                <button type="button" class="profile-logout" @onclick="HandleLogout" disabled="@isLoggingOut">@(isLoggingOut ? "Signing out..." : "Log out")</button>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>
@@ -143,6 +159,8 @@
 
 @code {
     private bool showNotifications;
+    private bool showProfileMenu;
+    private bool isLoggingOut;
     private int UnreadNotificationCount => notifications.Count(n => !n.IsRead);
     private readonly List<PortalNotification> notifications =
     [
@@ -151,7 +169,11 @@
         new("Appointment reminder", "Your Philippine Passport appointment is scheduled for 19 July at 10:00 AM.", "15 July, 4:30 PM", "/user/requests", "appointment", "19", true)
     ];
 
-    private void ToggleNotifications() => showNotifications = !showNotifications;
+    private void ToggleNotifications()
+    {
+        showNotifications = !showNotifications;
+        showProfileMenu = false;
+    }
     private void CloseNotifications() => showNotifications = false;
     private void MarkAllAsRead()
     {
@@ -162,6 +184,30 @@
     {
         notification.IsRead = true;
         showNotifications = false;
+    }
+
+    private void ToggleProfileMenu()
+    {
+        showProfileMenu = !showProfileMenu;
+        showNotifications = false;
+    }
+
+    private void CloseProfileMenu() => showProfileMenu = false;
+
+    private async Task HandleLogout()
+    {
+        if (isLoggingOut) return;
+        isLoggingOut = true;
+        try
+        {
+            await SupabaseClient.Auth.SignOut();
+            Navigation.NavigateTo("/login", forceLoad: true);
+        }
+        finally
+        {
+            isLoggingOut = false;
+            showProfileMenu = false;
+        }
     }
 
     private sealed class PortalNotification(string title, string message, string time, string href, string kind, string symbol, bool isRead = false)
