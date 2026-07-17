@@ -34,6 +34,7 @@
         </div>
     </div>
 
+    <!-- Analytics Stats -->
     <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-[#FFE0B2] border border-[#FFE2BC] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
             <div class="flex justify-between items-start">
@@ -68,6 +69,7 @@
         </div>
     </div>
 
+    <!-- Active Table Queue -->
     <div>
         <div class="flex justify-between items-center mb-5">
             <h3 class="text-[28px] font-bold text-slate-800">High-Priority Queue</h3>
@@ -145,10 +147,23 @@
     private int completedCount = 0;
     private bool showReviewModal = false;
     private RequestItem? selectedRequest;
-
     private List<RequestItem> allRequests = new();
 
     protected override async Task OnInitializedAsync()
+    {
+        // 1. ROUTE GUARD: Prevent unauthenticated access
+        var user = SupabaseClient.Auth.CurrentUser;
+        if (user == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        // 2. Fetch live database requests dynamically
+        await RefreshData();
+    }
+
+    private async Task RefreshData()
     {
         try
         {
@@ -182,10 +197,11 @@
         showReviewModal = true;
     }
 
-    private void CloseReviewModal()
+    private async Task CloseReviewModal()
     {
         showReviewModal = false;
         selectedRequest = null;
+        await RefreshData(); // Instantly refresh statistics counts if a request status changed
     }
 
     private string GetStatusBadgeClass(string status) => status switch

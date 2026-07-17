@@ -85,11 +85,28 @@
         }
         catch (Supabase.Gotrue.Exceptions.GotrueException ex)
         {
-            errorMessage = ex.Message;
+            // Parse out the clean human message from the JSON error body
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(ex.Message);
+                if (doc.RootElement.TryGetProperty("msg", out var msgElement))
+                {
+                    errorMessage = msgElement.GetString() ?? "Invalid login credentials.";
+                }
+                else
+                {
+                    errorMessage = "Invalid email or password. Please try again.";
+                }
+            }
+            catch
+            {
+                // Fallback in case the message format changes
+                errorMessage = "Invalid email or password. Please try again.";
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = "An unexpected error occurred: " + ex.Message;
+            errorMessage = "An unexpected error occurred. Please try again later.";
         }
         finally
         {

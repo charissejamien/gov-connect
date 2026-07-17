@@ -2,134 +2,246 @@
 @rendermode InteractiveServer
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
+@using gov_connect.Data.Models
 
-<div class="citizen-dashboard">
+<div class="citizen-dashboard p-6 md:p-10 font-sans max-w-7xl mx-auto flex flex-col gap-10">
     <div class="dashboard-heading">
         <div>
-            <p class="dashboard-eyebrow">Citizen Service Dashboard</p>
-            <h1>Citizen Dashboard</h1>
-            <p>Manage document applications and monitor requests across participating government agencies.</p>
-        </div>
-    </div>
-
-    <section class="dashboard-actions" aria-label="Primary actions">
-        <div class="dashboard-actions-copy">
-            <span class="section-label">GovConnect Online Services</span>
-            <h2>Magandang Umaga, @(string.IsNullOrEmpty(firstName) ? "Citizen" : firstName)!</h2>
-            <p>Access government services in one place. Submit requirements online and track every application through your citizen account.</p>
-        </div>
-        <div class="dashboard-action-buttons">
-            <button class="primary-gov-button" @onclick="NavigateToServices">
-                <img src="/icons/add.svg" alt="" aria-hidden="true" />
-                Start a new request
-            </button>
-            <NavLink href="/user/requests" class="secondary-gov-button">
-                <img src="/icons/search.svg" alt="" aria-hidden="true" />
-                Track an existing request
-            </NavLink>
-        </div>
-    </section>
-
-    <section aria-labelledby="request-overview-title">
-        <div class="section-heading-row">
-            <div><p class="section-label">Request Overview</p><h2 id="request-overview-title">Application summary</h2></div>
-            <NavLink href="/user/requests" class="text-link">View all requests <span aria-hidden="true">→</span></NavLink>
-        </div>
-        <div class="metrics-grid">
-            <NavLink href="/user/requests" class="metric-card">
-                <div class="metric-icon"><img src="/icons/total-requests.svg" alt="" /></div>
-                <div><span>All requests</span><strong>24</strong><small>Across all agencies</small></div>
-            </NavLink>
-            <div class="metric-card">
-                <div class="metric-icon"><img src="/icons/for-pickup.svg" alt="" /></div>
-                <div><span>In progress</span><strong>3</strong><small>Currently being processed</small></div>
-            </div>
-            <div class="metric-card metric-ready">
-                <div class="metric-icon"><img src="/icons/in-progress.svg" alt="" /></div>
-                <div><span>Ready for release</span><strong>9</strong><small>Available for pickup</small></div>
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Citizen Service Dashboard</p>
+            <h1 class="text-3xl font-bold text-gray-900 mt-1">Citizen Dashboard</h1>
+            <p class="text-gray-600 mt-1">Manage document applications and monitor requests across participating
+                government agencies.</p>
             </div>
         </div>
-    </section>
 
-    <div class="dashboard-content-grid">
-        <section class="dashboard-panel" aria-labelledby="recent-title">
-            <div class="panel-heading"><div><p class="section-label">Recent Activity</p><h2 id="recent-title">Latest request</h2></div><span class="request-status">Processing</span></div>
-            <div class="request-record">
-                <div class="record-icon"><img src="/icons/birth-certificate.svg" alt="" /></div>
-                <div class="record-main">
-                    <h3>Birth Certificate</h3>
-                    <p>Philippine Statistics Authority</p>
-                    <dl><div><dt>Reference number</dt><dd>GC-35356-5436</dd></div><div><dt>Date submitted</dt><dd>09 December 2025</dd></div></dl>
-                </div>
-            </div>
-            <div class="request-progress">
-                <div><span>Application progress</span><strong>75%</strong></div>
-                <div class="progress-track"><span style="width: 75%"></span></div>
-                <p>Your request is being verified by the issuing agency.</p>
-            </div>
-            <NavLink href="/user/requests" class="panel-link">View request details <span aria-hidden="true">→</span></NavLink>
-        </section>
+        <section class="bg-slate-800 text-white rounded-2xl p-8 relative overflow-hidden shadow-md"
+                 aria-label="Primary actions">
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="max-w-xl">
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">GovConnect Online Services</span>
+                    <h2 class="text-2xl font-bold mt-1">Magandang Umaga, @(string.IsNullOrEmpty(firstName) ? "Citizen" :
+                                                                    firstName)!</h2>
+                        <p class="text-slate-300 text-sm mt-2">Access government services in one place. Submit requirements
+                            online and track every application through your citizen account.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-4 shrink-0">
+                            <button
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-xl text-sm flex items-center gap-2 transition-colors shadow-sm"
+                                @onclick="NavigateToServices">
+                                <img src="/icons/add.svg" alt="" class="w-4 h-4" aria-hidden="true" />
+                                Start a new request
+                            </button>
+                            <NavLink href="/user/requests"
+                                     class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-xl text-sm flex items-center gap-2 transition-colors shadow-sm">
+                                <img src="/icons/search.svg" alt="" class="w-4 h-4" aria-hidden="true" />
+                                Track an existing request
+                            </NavLink>
+                        </div>
+                    </div>
+                </section>
 
-        <aside class="dashboard-panel service-guide" aria-labelledby="guide-title">
-            <div class="panel-heading"><div><p class="section-label">Citizen Guide</p><h2 id="guide-title">Before you apply</h2></div></div>
-            <ol>
-                <li><span>1</span><div><strong>Select a document</strong><small>Choose from supported agency services.</small></div></li>
-                <li><span>2</span><div><strong>Submit requirements</strong><small>Provide complete and accurate information.</small></div></li>
-                <li><span>3</span><div><strong>Track your request</strong><small>Monitor verification through your account.</small></div></li>
-            </ol>
-            <p class="security-note"><strong>Secure transactions</strong><br />Your personal information is protected throughout the request process.</p>
-        </aside>
-    </div>
+                <section aria-labelledby="request-overview-title">
+                    <div class="flex justify-between items-end mb-4">
+                        <div>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Request Overview</p>
+                            <h2 id="request-overview-title" class="text-xl font-bold text-gray-900 mt-0.5">Application summary</h2>
+                        </div>
+                        <NavLink href="/user/requests" class="text-sm font-semibold text-blue-600 hover:underline">View all requests
+                            <span aria-hidden="true">→</span>
+                        </NavLink>
+                    </div>
 
-    <section aria-labelledby="services-title">
-        <div class="section-heading-row">
-            <div><p class="section-label">Participating Agencies</p><h2 id="services-title">Frequently requested services</h2></div>
-            <NavLink href="/user/services" class="text-link">Browse all services <span aria-hidden="true">→</span></NavLink>
-        </div>
-        <div class="services-grid">
-            <button class="service-card" @onclick='() => RequestDoc("birth-certificate")'><img src="/icons/birth-certificate.svg" alt="" /><span><strong>Birth Certificate</strong><small>Philippine Statistics Authority</small></span><b>PSA</b></button>
-            <button class="service-card" @onclick='() => RequestDoc("national-id")'><img src="/icons/national-id.svg" alt="" /><span><strong>National ID</strong><small>Philippine Identification System</small></span><b>PhilSys</b></button>
-            <button class="service-card" @onclick='() => RequestDoc("drivers-license")'><img src="/icons/drivers-license.svg" alt="" /><span><strong>Driver's License</strong><small>Land Transportation Office</small></span><b>LTO</b></button>
-            <button class="service-card" @onclick='() => RequestDoc("philippine-passport")'><img src="/icons/for-pickup.svg" alt="" /><span><strong>Philippine Passport</strong><small>Department of Foreign Affairs</small></span><b>DFA</b></button>
-        </div>
-    </section>
-</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <NavLink href="/user/requests"
+                                 class="bg-gray-100 hover:bg-gray-200 transition-colors p-5 rounded-xl flex items-center gap-4 text-gray-800 shadow-sm">
+                            <div class="bg-white p-3 rounded-xl shadow-sm"><img src="/icons/total-requests.svg" alt=""
+                                                                                    class="w-6 h-6" /></div>
+                                <div><span class="text-xs font-semibold text-gray-500 block">All requests</span><strong
+                                    class="text-2xl font-bold text-slate-800">@totalRequestsCount</strong><small
+                                    class="text-[11px] text-gray-400 block mt-0.5">Across all agencies</small></div>
+                                </NavLink>
+                                <div class="bg-gray-100 p-5 rounded-xl flex items-center gap-4 shadow-sm text-gray-800">
+                                    <div class="bg-white p-3 rounded-xl shadow-sm"><img src="/icons/for-pickup.svg" alt=""
+                                                                                            class="w-6 h-6" /></div>
+                                        <div><span class="text-xs font-semibold text-gray-500 block">In progress</span><strong
+                                            class="text-2xl font-bold text-slate-800">@inProgressCount</strong><small
+                                            class="text-[11px] text-gray-400 block mt-0.5">Currently being processed</small></div>
+                                        </div>
+                                        <div
+                                            class="bg-green-50 border border-green-100 p-5 rounded-xl flex items-center gap-4 shadow-sm text-gray-800">
+                                            <div class="bg-white p-3 rounded-xl shadow-sm"><img src="/icons/in-progress.svg" alt=""
+                                                                                                    class="w-6 h-6" /></div>
+                                                <div><span class="text-xs font-semibold text-green-700 block">Ready for release</span><strong
+                                                    class="text-2xl font-bold text-green-800">@readyRequestsCount</strong><small
+                                                    class="text-[11px] text-green-600/70 block mt-0.5">Available for pickup</small></div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <!-- Rest of User Layout Grid (Recent Activity, Guide, etc.) -->
+                                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                                            <section
+                                                class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between shadow-sm"
+                                                aria-labelledby="recent-title">
+                                                <div>
+                                                    <div class="flex justify-between items-start mb-4">
+                                                        <div>
+                                                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Recent Activity</p>
+                                                            <h2 id="recent-title" class="text-lg font-bold text-slate-800">Latest request</h2>
+                                                        </div>
+                                                        @if (latestRequest != null)
+                                                        {
+                                                            <span
+                                                            class="px-2.5 py-1 text-xs font-bold bg-purple-50 border border-purple-200 text-purple-700 rounded-full">@latestRequest.Status</span>
+                                                        }
+                                                    </div>
+                                                    @if (latestRequest != null)
+                                                    {
+                                                        <div class="flex gap-4 items-start bg-slate-50 p-4 rounded-xl mb-4">
+                                                            <div class="bg-white p-2.5 rounded-lg border border-slate-200"><img
+                                                                src="/icons/birth-certificate.svg" alt="" class="w-8 h-8" /></div>
+                                                                <div>
+                                                                    <h3 class="font-bold text-slate-900 text-base">@latestRequest.DocumentTitle</h3>
+                                                                    <p class="text-xs font-medium text-gray-500">@latestRequest.DocumentAgency</p>
+                                                                    <div class="flex gap-6 mt-3 text-xs text-slate-600 font-medium">
+                                                                        <div><span class="text-gray-400 block">Reference ID</span> #@latestRequest.Id</div>
+                                                                        <div><span class="text-gray-400 block">Date submitted</span>
+                                                                            @latestRequest.CreatedAt.ToString("dd MMMM yyyy")</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                else
+                                                            {
+                                                                <p class="text-sm text-gray-500 py-6">You haven't submitted any requests yet.</p>
+                                                            }
+                                                        </div>
+                                                        <NavLink href="/user/requests" class="text-sm font-semibold text-blue-600 hover:underline mt-4 block">View
+                                                            request details →</NavLink>
+                                                        </section>
+
+                                                        <!-- Citizen Process Side Guide Panel -->
+                                                        <aside class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-4"
+                                                               aria-labelledby="guide-title">
+                                                            <h2 id="guide-title" class="text-lg font-bold text-slate-900">Before you apply</h2>
+                                                            <ol class="space-y-4 text-sm font-medium">
+                                                                <li class="flex gap-3">
+                                                                    <span
+                                                                    class="bg-slate-100 text-slate-700 w-6 h-6 flex items-center justify-center rounded-full text-xs shrink-0 font-bold">1</span>
+                                                                    <div><strong class="text-slate-800 block">Select a document</strong><span
+                                                                        class="text-xs text-gray-400 font-normal">Choose from supported agency services.</span>
+                                                                    </div>
+                                                                </li>
+                                                                <li class="flex gap-3">
+                                                                    <span
+                                                                    class="bg-slate-100 text-slate-700 w-6 h-6 flex items-center justify-center rounded-full text-xs shrink-0 font-bold">2</span>
+                                                                    <div><strong class="text-slate-800 block">Submit requirements</strong><span
+                                                                        class="text-xs text-gray-400 font-normal">Provide complete and accurate information.</span>
+                                                                    </div>
+                                                                </li>
+                                                            </ol>
+                                                            <p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100 mt-2"><strong>Secure
+                                                                transactions</strong><br />Your personal information is protected throughout the request process.
+                                                            </p>
+                                                        </aside>
+                                                    </div>
+
+                                                    <!-- Frequently Requested Services Quick Launch Buttons -->
+                                                    <section aria-labelledby="services-title">
+                                                        <div class="flex justify-between items-end mb-4">
+                                                            <div>
+                                                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Participating Agencies</p>
+                                                                <h2 id="services-title" class="text-xl font-bold text-gray-900 mt-0.5">Frequently requested services
+                                                                </h2>
+                                                            </div>
+                                                            <NavLink href="/user/services" class="text-sm font-semibold text-blue-600 hover:underline">Browse all
+                                                                services <span aria-hidden="true">→</span></NavLink>
+                                                            </div>
+                                                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                                                <button
+                                                                    class="bg-[#E8E6F4] hover:bg-[#dfdceb] transition-colors p-5 rounded-xl text-left shadow-sm flex items-center justify-between group"
+                                                                    @onclick='() => RequestDoc("birth-certificate")'>
+                                                                    <div class="flex gap-3 items-center"><img src="/icons/birth-certificate.svg" alt=""
+                                                                                                                  class="w-8 h-8" /><span><strong class="text-sm text-slate-800 block leading-tight">Birth
+                                                                        Certificate</strong><small
+                                                                        class="text-[11px] text-gray-400 block font-medium">PSA</small></span></div>
+                                                                    </button>
+                                                                    <button
+                                                                        class="bg-[#E8E6F4] hover:bg-[#dfdceb] transition-colors p-5 rounded-xl text-left shadow-sm flex items-center justify-between group"
+                                                                        @onclick='() => RequestDoc("national-id")'>
+                                                                        <div class="flex gap-3 items-center"><img src="/icons/national-id.svg" alt=""
+                                                                                                                      class="w-8 h-8" /><span><strong class="text-sm text-slate-800 block leading-tight">National
+                                                                            ID</strong><small class="text-[11px] text-gray-400 block font-medium">PhilSys</small></span>
+                                                                        </div>
+                                                                    </button>
+                                                                    <button
+                                                                        class="bg-[#E8E6F4] hover:bg-[#dfdceb] transition-colors p-5 rounded-xl text-left shadow-sm flex items-center justify-between group"
+                                                                        @onclick='() => RequestDoc("drivers-license")'>
+                                                                        <div class="flex gap-3 items-center"><img src="/icons/drivers-license.svg" alt=""
+                                                                                                                      class="w-8 h-8" /><span><strong class="text-sm text-slate-800 block leading-tight">Driver's
+                                                                            License</strong><small
+                                                                            class="text-[11px] text-gray-400 block font-medium">LTO</small></span></div>
+                                                                        </button>
+                                                                        <button
+                                                                            class="bg-[#E8E6F4] hover:bg-[#dfdceb] transition-colors p-5 rounded-xl text-left shadow-sm flex items-center justify-between group"
+                                                                            @onclick='() => RequestDoc("philippine-passport")'>
+                                                                            <div class="flex gap-3 items-center"><img src="/icons/for-pickup.svg" alt=""
+                                                                                                                          class="w-8 h-8" /><span><strong class="text-sm text-slate-800 block leading-tight">Philippine
+                                                                                Passport</strong><small
+                                                                                class="text-[11px] text-gray-400 block font-medium">DFA</small></span></div>
+                                                                            </button>
+                                                                        </div>
+                                                                    </section>
+                                                                </div>
 
 @code {
     private string firstName = "User";
+    private int totalRequestsCount = 0;
+    private int inProgressCount = 0;
+    private int readyRequestsCount = 0;
+    private RequestItem? latestRequest;
 
     protected override async Task OnInitializedAsync()
     {
+        // 1. ROUTE GUARD: Check if a user session exists in Supabase
+        var user = SupabaseClient.Auth.CurrentUser;
+        if (user == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        // 2. Load User Profile metadata
+        if (user.UserMetadata != null && user.UserMetadata.TryGetValue("full_name", out var nameObj) && nameObj != null)
+        {
+            var nameParts = nameObj.ToString()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (nameParts.Length > 0) firstName = nameParts[0];
+        }
+
+        // 3. Connect to Database to load dashboard metrics for this specific user
         try
         {
-            var user = SupabaseClient.Auth.CurrentUser;
-            if (user != null && user.UserMetadata != null)
-            {
-                if (user.UserMetadata.TryGetValue("full_name", out var nameObj) && nameObj != null)
-                {
-                    string fullName = nameObj.ToString() ?? string.Empty;
+            var response = await SupabaseClient.From<RequestItem>()
+                .Filter("user_id", Supabase.Postgrest.Constants.Operator.Equals, user.Id)
+                .Order("created_at", Supabase.Postgrest.Constants.Ordering.Descending)
+                .Get();
 
-                    var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    if (nameParts.Length > 0)
-                    {
-                        firstName = nameParts[0];
-                    }
-                }
-            }
+            var userRequests = response.Models ?? new List<RequestItem>();
+
+            totalRequestsCount = userRequests.Count;
+            inProgressCount = userRequests.Count(r => r.Status == "Pending" || r.Status == "In Progress" || r.Status ==
+"Processing");
+            readyRequestsCount = userRequests.Count(r => r.Status == "Ready for Pickup");
+            latestRequest = userRequests.FirstOrDefault();
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error obtaining user session details: {ex.Message}");
+            Console.WriteLine($"Error retrieving database metrics for citizen: {ex.Message}");
         }
     }
 
-    private void NavigateToServices()
-    {
-        Navigation.NavigateTo("/user/services");
-    }
-
-    private void RequestDoc(string slug)
-    {
-        Navigation.NavigateTo($"/user/request/{slug}");
-    }
+    private void NavigateToServices() => Navigation.NavigateTo("/user/services");
+    private void RequestDoc(string slug) => Navigation.NavigateTo($"/user/request/{slug}");
 }
