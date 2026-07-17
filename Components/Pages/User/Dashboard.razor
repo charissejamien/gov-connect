@@ -1,5 +1,4 @@
 @page "/user/dashboard"
-@rendermode InteractiveServer
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
 @using gov_connect.Components.Shared
@@ -24,7 +23,7 @@
                 <img src="/icons/add.svg" alt="" aria-hidden="true" />
                 Start a new request
             </button>
-            <NavLink href="/user/requests" class="secondary-gov-button">
+            <NavLink href="/user/track" class="secondary-gov-button">
                 <img src="/icons/search.svg" alt="" aria-hidden="true" />
                 Track an existing request
             </NavLink>

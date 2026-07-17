@@ -1,11 +1,10 @@
 @page "/admin/dashboard"
-@rendermode InteractiveServer
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
 @using gov_connect.Data.Models
 @using gov_connect.Components.Shared
 
-<div class="flex flex-col gap-10 xl:w-[80%] xl:mx-auto p-6 md:p-10 font-sans">
+<div class="admin-page flex flex-col gap-10 xl:w-[80%] xl:mx-auto p-6 md:p-10 font-sans">
     <RequestReviewModal IsOpen="showReviewModal" Request="selectedRequest" OnClose="CloseReviewModal" />
 
     <div class="rounded-xl overflow-hidden text-white relative shadow-md">

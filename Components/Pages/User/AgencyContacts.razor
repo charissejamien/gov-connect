@@ -1,0 +1,62 @@
+@page "/user/agency-contacts"
+@using gov_connect.Components.Shared
+
+<PageTitle>Agency Assistance | GovConnect</PageTitle>
+
+<div class="agency-directory-page">
+    <header class="agency-directory-heading">
+        <div><p class="section-label">Citizen Support</p><h1>Agency Assistance Directory</h1><p>Use verified public channels for questions about requirements, appointments, corrections, or delayed applications.</p></div>
+    </header>
+
+    <div class="agency-contact-notice">
+        <strong>Contacting an agency does not provide priority processing.</strong>
+        <span>Never send passwords, OTPs, card details, wallet credentials, or unrequested copies of identification through email.</span>
+    </div>
+
+    <div class="agency-directory-tools">
+        <label><span class="sr-only">Search agencies</span><input @bind="searchTerm" @bind:event="oninput" placeholder="Search an agency or service" /></label>
+    </div>
+
+    <div class="agency-contact-grid">
+        @foreach (var agency in FilteredAgencies)
+        {
+            <article class="agency-contact-card" id="agency-@agency.Key">
+                <header><AgencyBadge Agency="@agency.Acronym" /><div><span class="agency-tag agency-tag-@agency.Key">@agency.Acronym</span><h2>@agency.Name</h2><p>@agency.Services</p></div></header>
+                <dl>
+                    @if (!string.IsNullOrWhiteSpace(agency.Phone))
+                    {
+                        <div><dt>Public hotline</dt><dd><a href="tel:@agency.PhoneLink">@agency.Phone</a></dd></div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(agency.Email))
+                    {
+                        <div><dt>Official email</dt><dd><a href="mailto:@agency.Email">@agency.Email</a></dd></div>
+                    }
+                    <div><dt>Official website</dt><dd><a href="@agency.Website" target="_blank" rel="noopener noreferrer">@agency.WebsiteLabel <span aria-hidden="true">↗</span></a></dd></div>
+                    <div><dt>Service hours</dt><dd>@agency.Hours</dd></div>
+                </dl>
+                <div class="agency-contact-actions">
+                    @if (!string.IsNullOrWhiteSpace(agency.Email))
+                    {
+                        <a href="mailto:@agency.Email?subject=GovConnect%20service%20inquiry">Email agency</a>
+                    }
+                    <a href="@agency.Website" target="_blank" rel="noopener noreferrer" class="secondary">Visit official website</a>
+                </div>
+            </article>
+        }
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "agency")] public string? SelectedAgency { get; set; }
+    private string searchTerm = string.Empty;
+    private IEnumerable<AgencyContact> FilteredAgencies => agencies.Where(a => string.IsNullOrWhiteSpace(searchTerm) || $"{a.Name} {a.Acronym} {a.Services}".Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    private readonly AgencyContact[] agencies =
+    [
+        new("psa", "PSA", "Philippine Statistics Authority", "Civil registry certificates and PSA document concerns", "(02) 8461-0500 loc. 808 or 813", "+63284610500", "", "https://psa.gov.ph", "psa.gov.ph", "Monday–Friday, 8:00 AM–6:00 PM"),
+        new("philsys", "PhilSys", "Philippine Identification System", "National ID registration, status, and claiming concerns", "1388", "1388", "info@philsys.gov.ph", "https://philsys.gov.ph", "philsys.gov.ph", "Monday–Friday, 8:00 AM–5:00 PM"),
+        new("lto", "LTO", "Land Transportation Office", "Driver's licenses, LTMS accounts, and motor vehicle services", "", "", "clientcare@lto.gov.ph", "https://lto.gov.ph", "lto.gov.ph", "Refer to the selected LTO office"),
+        new("dfa", "DFA", "Department of Foreign Affairs", "Passport appointments, passport processing, and releasing concerns", "(02) 8234-3488", "+63282343488", "oca.passport@dfa.gov.ph", "https://consular.dfa.gov.ph/directory", "DFA Consular Office Directory", "Office hours vary by consular office"),
+        new("nbi", "NBI", "National Bureau of Investigation", "NBI Clearance applications, appointments, and releasing concerns", "(02) 8524-1277", "+63285241277", "nbiclearance@nbi.gov.ph", "https://nbi.gov.ph/contact", "nbi.gov.ph/contact", "Monday–Friday, 7:00 AM–5:00 PM")
+    ];
+    private sealed record AgencyContact(string Key, string Acronym, string Name, string Services, string Phone, string PhoneLink, string Email, string Website, string WebsiteLabel, string Hours);
+}
