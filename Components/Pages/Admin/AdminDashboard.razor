@@ -150,16 +150,27 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. ROUTE GUARD: Prevent unauthenticated access
         var user = SupabaseClient.Auth.CurrentUser;
+
         if (user == null)
         {
             Navigation.NavigateTo("/login");
             return;
         }
 
-        // 2. Fetch live database requests dynamically
-        await RefreshData();
+        bool isAdmin = false;
+        if (user.UserMetadata != null && user.UserMetadata.TryGetValue("role", out var roleObj))
+        {
+            isAdmin = roleObj?.ToString() == "admin";
+        }
+
+        if (!isAdmin)
+        {
+            Navigation.NavigateTo("/user/dashboard");
+            return;
+        }
+        s
+                await RefreshData();
     }
 
     private async Task RefreshData()
