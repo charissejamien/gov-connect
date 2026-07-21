@@ -79,33 +79,26 @@
 
             if (response != null && response.User != null)
             {
-                Navigation.NavigateTo("/user/dashboard");
-            }
-        }
-        catch (Supabase.Gotrue.Exceptions.GotrueException ex)
-        {
-            // Parse out the clean human message from the JSON error body
-            try
-            {
-                using var doc = System.Text.Json.JsonDocument.Parse(ex.Message);
-                if (doc.RootElement.TryGetProperty("msg", out var msgElement))
+                bool isAdmin = false;
+                if (response.User.UserMetadata != null && 
+                    response.User.UserMetadata.TryGetValue("role", out var roleObj))
                 {
-                    errorMessage = msgElement.GetString() ?? "Invalid login credentials.";
+                    isAdmin = roleObj?.ToString() == "admin";
+                }
+
+                if (isAdmin)
+                {
+                    Navigation.NavigateTo("/admin/dashboard");
                 }
                 else
                 {
-                    errorMessage = "Invalid email or password. Please try again.";
+                    Navigation.NavigateTo("/user/dashboard");
                 }
-            }
-            catch
-            {
-                // Fallback in case the message format changes
-                errorMessage = "Invalid email or password. Please try again.";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "An unexpected error occurred. Please try again later.";
+            errorMessage = "Invalid email or password.";
         }
         finally
         {
@@ -113,9 +106,9 @@
         }
     }
 
-    public class LoginFormModel
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public class LoginFormModel
+        {
+            public string Email { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+        }
     }
-}
