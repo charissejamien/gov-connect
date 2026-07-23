@@ -1,0 +1,227 @@
+@page "/admin/requests/{StatusCategory}"
+@inject Supabase.Client SupabaseClient
+@inject NavigationManager Navigation
+@using gov_connect.Data.Models
+@using gov_connect.Components.Shared
+
+<div class="admin-page flex flex-col gap-6 xl:w-[90%] xl:mx-auto p-6 md:p-10 font-sans">
+    <RequestReviewModal IsOpen="showReviewModal" Request="selectedRequest" OnClose="CloseReviewModal" />
+
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <h1 class="text-[28px] font-bold text-slate-800">@DisplayTitle</h1>
+            <p class="mt-1 text-sm text-slate-500">Viewing and managing all requests currently marked as
+                @DisplayTitle.ToLower().</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button @onclick='() => Navigation.NavigateTo("/admin/requests")'
+                        class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+                    View All Requests
+                </button>
+                <button @onclick="NavigateToDashboard"
+                        class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-200">
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border p-6 shadow-sm @BannerThemeClass">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold mt-1">@filteredRequests.Count Total @DisplayTitle Requests</h2>
+                </div>
+                <img src="icons/total-requests.svg" alt="" class="h-10 w-10 opacity-80">
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="relative w-full md:w-96">
+                    <img src="icons/search.svg" alt="" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-70">
+                    <input type="text" value="@searchTerm" @oninput="OnSearchChanged"
+                           placeholder="Search applicant or document..."
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:bg-white" />
+                </div>
+            </div>
+
+            <div class="mt-5 overflow-hidden rounded-2xl border border-slate-200">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr class="text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                            <th class="px-4 py-3">Tracking ID</th>
+                            <th class="px-4 py-3">Applicant</th>
+                            <th class="px-4 py-3">Document</th>
+                            <th class="px-4 py-3">Delivery</th>
+                            <th class="px-4 py-3">Date</th>
+                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white text-sm text-slate-700">
+                        @if (filteredRequests.Any())
+                        {
+                            @foreach (var request in filteredRequests)
+                            {
+                                <tr class="transition-colors hover:bg-slate-50/80">
+                                    <td class="px-4 py-4 font-mono text-xs font-semibold text-blue-600">#@request.Id</td>
+                                    <td class="px-4 py-4">
+                                        <div class="font-semibold text-slate-900">@request.FirstName @request.LastName</div>
+                                        <div class="text-[11px] text-slate-500">@request.Purpose</div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="font-medium text-slate-800">@request.DocumentTitle</div>
+                                        <div class="text-[11px] text-slate-500">@request.DocumentAgency</div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <span
+                                            class="rounded-full px-2.5 py-1 text-[11px] font-semibold @(request.DeliveryMethod == "Delivery" ? "bg-amber-100 text-amber-800" : "bg-sky-100 text-sky-800")">
+                                            @request.DeliveryMethod
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 text-slate-600">@FormatDate(request.CreatedAt)</td>
+                                    <td class="px-4 py-4">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold @GetStatusBadgeClass(request.Status)">
+                                            <span class="h-1.5 w-1.5 rounded-full @GetStatusDotClass(request.Status)"></span>
+                                            @request.Status
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 text-right">
+                                        <button @onclick="() => OpenReviewModal(request)"
+                                                class="rounded-lg border border-slate-200 bg-[#276FC2] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
+                                            Review
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="px-4 py-12 text-center text-sm text-slate-500">
+                                    No @DisplayTitle requests found matching your search.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+@code {
+    [Parameter]
+    public string StatusCategory { get; set; } = "pending";
+
+    private List<RequestItem> categoryRequests = new();
+    private List<RequestItem> filteredRequests = new();
+    private string searchTerm = string.Empty;
+    private bool showReviewModal = false;
+    private RequestItem? selectedRequest;
+
+    private string DisplayTitle => StatusCategory.ToLowerInvariant() switch
+    {
+        "pending" => "Pending Review",
+        "processing" or "in-progress" => "Processing",
+        "ready-for-pickup" => "Ready for Pickup",
+        "completed" => "Completed Overall",
+        _ => "Category Requests"
+    };
+
+    private string BannerThemeClass => StatusCategory.ToLowerInvariant() switch
+    {
+        "pending" => "bg-[#FFF3E0] border-amber-200 text-amber-900",
+        "processing" or "in-progress" => "bg-[#F3E8FF] border-purple-200 text-purple-900",
+        "ready-for-pickup" => "bg-[#E8F5E9] border-green-200 text-green-900",
+        "completed" => "bg-[#E3F2FD] border-blue-200 text-blue-900",
+        _ => "bg-slate-100 border-slate-200 text-slate-800"
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadCategoryRequests();
+    }
+
+    private async Task LoadCategoryRequests()
+    {
+        try
+        {
+            var response = await SupabaseClient.From<RequestItem>()
+                .Order("created_at", Supabase.Postgrest.Constants.Ordering.Descending)
+                .Get();
+
+            var all = response.Models ?? new List<RequestItem>();
+
+            categoryRequests = StatusCategory.ToLowerInvariant() switch
+            {
+                "pending" => all.Where(r => string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase)).ToList(),
+                "processing" or "in-progress" => all.Where(r => string.Equals(r.Status, "In Progress",
+StringComparison.OrdinalIgnoreCase) || string.Equals(r.Status, "Processing",
+StringComparison.OrdinalIgnoreCase)).ToList(),
+                "ready-for-pickup" => all.Where(r => string.Equals(r.Status, "Ready for Pickup",
+StringComparison.OrdinalIgnoreCase)).ToList(),
+                "completed" => all.Where(r => string.Equals(r.Status, "Completed", StringComparison.OrdinalIgnoreCase)).ToList(),
+                _ => all
+            };
+
+            ApplySearchFilter();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error retrieving category requests: {ex.Message}");
+        }
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        ApplySearchFilter();
+    }
+
+    private void ApplySearchFilter()
+    {
+        filteredRequests = categoryRequests
+            .Where(r => string.IsNullOrWhiteSpace(searchTerm) ||
+                        $"{r.FirstName} {r.LastName} {r.DocumentTitle} {r.DocumentAgency} {r.Purpose}".Contains(searchTerm,
+StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private void NavigateToDashboard()
+    {
+        Navigation.NavigateTo("/admin/dashboard");
+    }
+
+    private void OpenReviewModal(RequestItem request)
+    {
+        selectedRequest = request;
+        showReviewModal = true;
+    }
+
+    private async Task CloseReviewModal()
+    {
+        showReviewModal = false;
+        selectedRequest = null;
+        await LoadCategoryRequests();
+    }
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Pending" => "bg-amber-50 text-amber-700 border border-amber-200",
+        "In Progress" or "Processing" => "bg-purple-50 text-purple-700 border border-purple-200",
+        "Ready for Pickup" => "bg-green-50 text-green-700 border border-green-200",
+        "Completed" => "bg-blue-50 text-blue-700 border border-blue-200",
+        _ => "bg-slate-50 text-slate-700"
+    };
+
+    private string GetStatusDotClass(string status) => status switch
+    {
+        "Pending" => "bg-amber-500",
+        "In Progress" or "Processing" => "bg-purple-500",
+        "Ready for Pickup" => "bg-green-500",
+        "Completed" => "bg-blue-500",
+        _ => "bg-slate-500"
+    };
+
+    private static string FormatDate(DateTime date) => date.ToString("MMM d, yyyy");
+}

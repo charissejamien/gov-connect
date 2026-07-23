@@ -42,5 +42,11 @@ namespace gov_connect.Data.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("file_urls")]
+        public List<string> FileUrls { get; set; } = new();
+
+        [Column("rejection_reason")]
+        public string? RejectionReason { get; set; }
     }
 }

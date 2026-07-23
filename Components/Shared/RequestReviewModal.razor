@@ -1,9 +1,11 @@
 @using gov_connect.Data.Models
+@inject Supabase.Client SupabaseClient
 
 @if (IsOpen && Request is not null)
 {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
-        <div class="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div
+            class="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-blue-600">Request Review</p>
@@ -14,6 +16,13 @@
                     Close
                 </button>
             </div>
+
+            @if (!string.IsNullOrEmpty(feedbackMessage))
+            {
+                <div class="mt-4 rounded-xl bg-blue-50 p-3 text-xs font-semibold text-blue-700">
+                    @feedbackMessage
+                </div>
+            }
 
             <div class="mt-6 grid gap-4 md:grid-cols-2">
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -33,36 +42,210 @@
                 </div>
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</p>
-                    <div class="mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold @GetStatusBadgeClass(Request.Status)">
+                    <div
+                        class="mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold @GetStatusBadgeClass(Request.Status)">
                         <span class="h-1.5 w-1.5 rounded-full @GetStatusDotClass(Request.Status)"></span>
                         @Request.Status
                     </div>
                 </div>
             </div>
 
-            <div class="mt-6 flex flex-wrap gap-3">
-                <button class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
-                    Approve Request
-                </button>
-                <button
-                    class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
-                    Reject Request
-                </button>
-                <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                    Mark as Ready for Pickup
-                </button>
+            <!-- Attached Files Grid -->
+            <div class="mt-6">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Attached Documents
+                    (@(Request.FileUrls?.Count ?? 0))</p>
+                    @if (Request.FileUrls != null && Request.FileUrls.Any())
+                    {
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            @foreach (var fileUrl in Request.FileUrls)
+                            {
+                                var isImage = IsImageFile(fileUrl);
+                                <div class="group relative rounded-2xl border border-slate-200 bg-slate-50 p-2 flex flex-col items-center hover:border-blue-300 transition-colors cursor-pointer"
+                                     @onclick="() => PreviewFile(fileUrl)">
+                                    @if (isImage)
+                                    {
+                                        <img src="@fileUrl" alt="Attachment" class="h-20 w-full object-cover rounded-xl" />
+                                    }
+                                    else
+                                    {
+                                        <div
+                                            class="h-20 w-full flex flex-col items-center justify-center bg-slate-200 rounded-xl text-slate-500">
+                                            <span class="text-xl">📄</span>
+                                            <span class="text-[10px] font-semibold uppercase mt-1">PDF Document</span>
+                                        </div>
+                                    }
+                                    <span
+                                        class="text-[11px] font-semibold text-blue-600 group-hover:underline mt-2 truncate w-full text-center">
+                                        View File
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rounded-2xl border border-dashed border-slate-200 p-4 text-center text-xs text-slate-400">
+                            No attached files submitted.
+                        </div>
+                    }
+                </div>
+
+                <!-- Rejection Input Section -->
+                @if (isRejecting)
+                {
+                    <div class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-red-700 mb-2">Reason for Rejection *</p>
+                        <textarea @bind="rejectionReason" rows="3"
+                                  placeholder="Explain to the citizen why this application was rejected..."
+                                  class="w-full rounded-xl border border-red-200 p-3 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-red-400"></textarea>
+                    </div>
+                }
+
+                <!-- Action Toolbar -->
+                <div class="mt-6 flex flex-wrap gap-3">
+                    @if (isRejecting)
+                    {
+                        <button @onclick="ConfirmReject" disabled="@isSaving"
+                                class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50">
+                            Confirm Rejection
+                        </button>
+                        <button @onclick="() => isRejecting = false"
+                                class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                            Cancel
+                        </button>
+                    }
+                    else
+                    {
+                        <button @onclick='() => UpdateStatus("Processing")' disabled="@isSaving"
+                                class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50">
+                            Approve Request
+                        </button>
+                        <button @onclick="StartReject"
+                                class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                            Reject Request
+                        </button>
+                        <button @onclick='() => UpdateStatus("Ready for Pickup")' disabled="@isSaving"
+                                class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50">
+                            Mark as Ready for Pickup
+                        </button>
+                    }
+                </div>
             </div>
         </div>
-    </div>
-}
+
+        <!-- File Lightbox Modal -->
+        @if (!string.IsNullOrEmpty(previewingFileUrl))
+        {
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md"
+                 @onclick="ClosePreview">
+                <div class="relative max-w-3xl max-h-[85vh] overflow-hidden" @onclick:stopPropagation>
+                    <button @onclick="ClosePreview"
+                            class="absolute top-2 right-2 rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-white hover:bg-black">
+                        ✕ Close
+                    </button>
+                    @if (IsImageFile(previewingFileUrl))
+                    {
+                        <img src="@previewingFileUrl" alt="Preview"
+                             class="max-h-[80vh] max-w-full rounded-2xl object-contain shadow-2xl" />
+                    }
+                    else
+                    {
+                        <div class="bg-white p-8 rounded-3xl text-center shadow-2xl">
+                            <p class="text-sm font-semibold text-slate-800 mb-4">PDF Document Preview</p>
+                            <a href="@previewingFileUrl" target="_blank"
+                               class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">
+                                Open PDF in New Tab
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
 
 @code {
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public RequestItem? Request { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
+    private bool isRejecting = false;
+    private bool isSaving = false;
+    private string rejectionReason = "";
+    private string feedbackMessage = "";
+    private string? previewingFileUrl;
+
+    private bool IsImageFile(string url)
+    {
+        var cleanUrl = url.Split('?')[0].ToLowerInvariant();
+        return cleanUrl.EndsWith(".png") || cleanUrl.EndsWith(".jpg") || cleanUrl.EndsWith(".jpeg") ||
+cleanUrl.EndsWith(".webp");
+    }
+
+    private void PreviewFile(string url)
+    {
+        previewingFileUrl = url;
+    }
+
+    private void ClosePreview()
+    {
+        previewingFileUrl = null;
+    }
+
+    private void StartReject()
+    {
+        isRejecting = true;
+        rejectionReason = "";
+    }
+
+    private async Task ConfirmReject()
+    {
+        if (string.IsNullOrWhiteSpace(rejectionReason))
+        {
+            feedbackMessage = "Please state a reason before rejecting.";
+            return;
+        }
+
+        await UpdateStatus("Rejected", rejectionReason);
+    }
+
+    private async Task UpdateStatus(string newStatus, string? reason = null)
+    {
+        if (Request == null) return;
+
+        isSaving = true;
+        feedbackMessage = "Updating request...";
+
+        try
+        {
+            Request.Status = newStatus;
+            if (!string.IsNullOrEmpty(reason))
+            {
+                Request.RejectionReason = reason;
+            }
+
+            await SupabaseClient.From<RequestItem>()
+                .Where(r => r.Id == Request.Id)
+                .Update(Request);
+
+            feedbackMessage = $"Status updated to '{newStatus}'!";
+            await Task.Delay(800);
+            await Close();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
     private async Task Close()
     {
+        isRejecting = false;
+        feedbackMessage = "";
+        previewingFileUrl = null;
         if (OnClose.HasDelegate)
         {
             await OnClose.InvokeAsync();
@@ -75,6 +258,7 @@
         "In Progress" or "Processing" => "bg-purple-50 text-purple-700 border border-purple-200",
         "Ready for Pickup" => "bg-green-50 text-green-700 border border-green-200",
         "Completed" => "bg-blue-50 text-blue-700 border border-blue-200",
+        "Rejected" => "bg-red-50 text-red-700 border border-red-200",
         _ => "bg-slate-50 text-slate-700"
     };
 
@@ -84,6 +268,7 @@
         "In Progress" or "Processing" => "bg-purple-500",
         "Ready for Pickup" => "bg-green-500",
         "Completed" => "bg-blue-500",
+        "Rejected" => "bg-red-500",
         _ => "bg-slate-500"
     };
 }

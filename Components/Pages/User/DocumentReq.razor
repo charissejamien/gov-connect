@@ -1,8 +1,10 @@
 @page "/user/request/{DocumentSlug}"
+@rendermode InteractiveServer
 
 @using gov_connect.Data
 @using gov_connect.Data.Models
 @using gov_connect.Data.Services
+@using Microsoft.AspNetCore.Components.Forms
 @inject Supabase.Client SupabaseClient
 @inject NavigationManager Navigation
 
@@ -34,188 +36,262 @@
             <div class="appointment-flow">
                 <div class="appointment-service-summary">
                     <div class="appointment-agency">@MatchedDocument?.Agency</div>
-                    <div><span>Appointment service</span><h3>@MatchedDocument?.Title</h3><p>An in-person appearance is required for identity verification@(DocumentSlug.Equals("national-id", StringComparison.OrdinalIgnoreCase) ? ", photograph, and biometrics." : " and biometrics.")</p></div>
-                </div>
-
-                <section class="requirements-checker" aria-labelledby="requirements-title">
-                    <div class="requirements-heading">
-                        <div><p class="section-label">Preparation Checklist</p><h3 id="requirements-title">Required documents</h3><p>Check each item that you already have. Bring the original and one photocopy unless stated otherwise.</p></div>
-                        <div class="readiness-score"><strong>@CompletedRequirementCount/@requirements.Count</strong><span>available</span></div>
+                    <div>
+                        <span>Appointment service</span>
+                        <h3>@MatchedDocument?.Title</h3>
+                        <p>An in-person appearance is required for identity verification@(DocumentSlug.Equals("national-id",
+                                                                                                            StringComparison.OrdinalIgnoreCase) ? ", photograph, and biometrics." : " and biometrics.")</p>
+                        </div>
                     </div>
 
-                    <div class="readiness-bar"><span style="width: @ReadinessPercentage%"></span></div>
+                    <section class="requirements-checker" aria-labelledby="requirements-title">
+                        <div class="requirements-heading">
+                            <div>
+                                <p class="section-label">Preparation Checklist</p>
+                                <h3 id="requirements-title">Required documents</h3>
+                                <p>Check each item that you already have. Bring the original and one photocopy unless stated
+                                    otherwise.</p>
+                                </div>
+                                <div class="readiness-score">
+                                    <strong>@CompletedRequirementCount/@requirements.Count</strong>
+                                    <span>available</span>
+                                </div>
+                            </div>
 
-                    <div class="requirements-list">
-                        @foreach (var requirement in requirements)
-                        {
-                            <label class="requirement-item @(requirement.IsAvailable ? "available" : "missing")">
-                                <input type="checkbox" checked="@requirement.IsAvailable" @onchange="e => SetRequirementAvailability(requirement, (bool)(e.Value ?? false))" />
-                                <span class="requirement-check" aria-hidden="true">@(requirement.IsAvailable ? "✓" : "")</span>
-                                <span class="requirement-copy"><strong>@requirement.Name</strong><small>@requirement.Description</small></span>
-                                <span class="requirement-state">@(requirement.IsAvailable ? "Available" : "Still needed")</span>
-                            </label>
-                        }
-                    </div>
+                            <div class="readiness-bar"><span style="width: @ReadinessPercentage%"></span></div>
 
-                    @if (!AllRequirementsAvailable)
-                    {
-                        <div class="missing-requirements-notice" role="status"><strong>You still need @MissingRequirementCount requirement@(MissingRequirementCount == 1 ? "" : "s").</strong> You may review schedules, but appointment confirmation will be enabled once your checklist is complete.</div>
-                    }
+                            <div class="requirements-list">
+                                @foreach (var requirement in requirements)
+                                {
+                                    <label class="requirement-item @(requirement.IsAvailable ? "available" : "missing")">
+                                        <input type="checkbox" checked="@requirement.IsAvailable"
+                                               @onchange="e => SetRequirementAvailability(requirement, (bool)(e.Value ?? false))" />
+                                        <span class="requirement-check" aria-hidden="true">@(requirement.IsAvailable ? "✓" : "")</span>
+                                        <span class="requirement-copy">
+                                            <strong>@requirement.Name</strong>
+                                            <small>@requirement.Description</small>
+                                        </span>
+                                        <span class="requirement-state">@(requirement.IsAvailable ? "Available" : "Still needed")</span>
+                                    </label>
+                                }
+                            </div>
+
+                            @if (!AllRequirementsAvailable)
+                            {
+                                <div class="missing-requirements-notice" role="status">
+                                    <strong>You still need @MissingRequirementCount requirement@(MissingRequirementCount == 1 ? "" :
+                                                                                                                                                "s").</strong> You may review schedules, but appointment confirmation will be enabled once your
+                                        checklist is complete.
+                                    </div>
+                                }
                     else
-                    {
-                        <div class="requirements-ready" role="status"><strong>Your checklist is complete.</strong> You may now select and confirm an appointment schedule.</div>
-                    }
-                </section>
+                                {
+                                    <div class="requirements-ready" role="status">
+                                        <strong>Your checklist is complete.</strong> You may now select and confirm an appointment schedule.
+                                    </div>
+                                }
+                            </section>
 
-                <section class="appointment-schedule" aria-labelledby="schedule-title">
-                    <div><p class="section-label">Appointment Schedule</p><h3 id="schedule-title">Select your preferred visit</h3></div>
-                    <div class="appointment-fields">
-                        <label><span>DFA office</span><select @bind="appointmentOffice"><option>DFA Aseana</option><option>DFA NCR East</option><option>DFA NCR South</option><option>DFA Cebu</option><option>DFA Davao</option></select></label>
-                        <label><span>Preferred date</span><input type="date" @bind="appointmentDate" min="@MinimumAppointmentDate" /></label>
-                        <label><span>Preferred time</span><select @bind="appointmentTime"><option value="">Select a time</option><option>8:00 AM</option><option>10:00 AM</option><option>1:00 PM</option><option>3:00 PM</option></select></label>
-                    </div>
-                </section>
+                            <section class="appointment-schedule" aria-labelledby="schedule-title">
+                                <div>
+                                    <p class="section-label">Appointment Schedule</p>
+                                    <h3 id="schedule-title">Select your preferred visit</h3>
+                                </div>
+                                <div class="appointment-fields">
+                                    <label>
+                                        <span>DFA office</span>
+                                        <select @bind="appointmentOffice">
+                                            <option>DFA Aseana</option>
+                                            <option>DFA NCR East</option>
+                                            <option>DFA NCR South</option>
+                                            <option>DFA Cebu</option>
+                                            <option>DFA Davao</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        <span>Preferred date</span>
+                                        <input type="date" @bind="appointmentDate" min="@MinimumAppointmentDate" />
+                                    </label>
+                                    <label>
+                                        <span>Preferred time</span>
+                                        <select @bind="appointmentTime">
+                                            <option value="">Select a time</option>
+                                            <option>8:00 AM</option>
+                                            <option>10:00 AM</option>
+                                            <option>1:00 PM</option>
+                                            <option>3:00 PM</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </section>
 
-                <button type="button" class="appointment-submit" disabled="@(!CanBookAppointment || isSubmitting)" @onclick="HandleAppointment">
-                    @(isSubmitting ? "Confirming appointment..." : AllRequirementsAvailable ? "Confirm appointment" : "Complete requirements checklist")
-                </button>
-                <p class="appointment-disclaimer">Checking an item confirms that you will bring the required document. The issuing agency will validate all originals during your appointment.</p>
-            </div>
-        }
+                            <button type="button" class="appointment-submit" disabled="@(!CanBookAppointment || isSubmitting)"
+                                    @onclick="HandleAppointment">
+                                @(isSubmitting ? "Confirming appointment..." : AllRequirementsAvailable ? "Confirm appointment" :
+                "Complete requirements checklist")
+                            </button>
+                            <p class="appointment-disclaimer">Checking an item confirms that you will bring the required document. The
+                                issuing agency will validate all originals during your appointment.</p>
+                            </div>
+                        }
         else
-        {
-        <EditForm Model="@requestModel" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
+                        {
+                            <EditForm Model="@requestModel" OnValidSubmit="HandleSubmit">
+                                <DataAnnotationsValidator />
 
-            <div class="space-y-6">
+                                <div class="space-y-6">
 
-                <div>
-                    <label class="block text-gray-600 text-sm font-semibold mb-2">Document Type *</label>
-                    <input type="text" value="@MatchedDocument?.Title" disabled
-                           class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none cursor-not-allowed font-medium" />
-                </div>
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-semibold mb-2">Document Type *</label>
+                                        <input type="text" value="@MatchedDocument?.Title" disabled
+                                               class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none cursor-not-allowed font-medium" />
+                                    </div>
 
-                <div>
-                    <label class="block text-gray-600 text-sm font-semibold mb-2">Purpose of Request *</label>
-                    <select @bind="requestModel.Purpose" required
-                            class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                        <option value="">Select Purpose</option>
-                        <option value="Employment">Employment</option>
-                        <option value="Identification">Identification/ID Application</option>
-                        <option value="Travel">Travel / Passport Application</option>
-                        <option value="Personal">Personal Use</option>
-                    </select>
-                </div>
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-semibold mb-2">Purpose of Request *</label>
+                                        <select @bind="requestModel.Purpose" required
+                                                class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                                            <option value="">Select Purpose</option>
+                                            <option value="Employment">Employment</option>
+                                            <option value="Identification">Identification/ID Application</option>
+                                            <option value="Travel">Travel / Passport Application</option>
+                                            <option value="Personal">Personal Use</option>
+                                        </select>
+                                    </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-gray-600 text-sm font-semibold mb-2">First Name *</label>
-                        <input type="text" @bind="requestModel.FirstName" placeholder="Enter first name" required
-                               class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-gray-600 text-sm font-semibold mb-2">First Name *</label>
+                                            <input type="text" @bind="requestModel.FirstName" placeholder="Enter first name" required
+                                                   class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-600 text-sm font-semibold mb-2">Middle Name</label>
+                                            <input type="text" @bind="requestModel.MiddleName" placeholder="Enter middle name"
+                                                   class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-semibold mb-2">Last Name *</label>
+                                        <input type="text" @bind="requestModel.LastName" placeholder="Enter last name" required
+                                               class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-semibold mb-3">Delivery Method *</label>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                                            <label
+                                                class="flex items-center gap-3 p-4 bg-[#F6F6F6] rounded-xl border border-gray-200 cursor-pointer transition-all hover:bg-gray-100">
+                                                <input type="radio" name="delivery" value="PickUp"
+                                                       checked="@(requestModel.DeliveryMethod == "PickUp")"
+                                                       @onchange="@(() => requestModel.DeliveryMethod = "PickUp")"
+                                                       class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                                <span class="text-gray-800 font-medium">Pick Up</span>
+                                            </label>
+
+                                            <label
+                                                class="flex items-center gap-3 p-4 bg-[#F6F6F6] rounded-xl border border-gray-200 cursor-pointer transition-all hover:bg-gray-100">
+                                                <input type="radio" name="delivery" value="Delivery"
+                                                       checked="@(requestModel.DeliveryMethod == "Delivery")"
+                                                       @onchange="@(() => requestModel.DeliveryMethod = "Delivery")"
+                                                       class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                                <span class="text-gray-800 font-medium">Delivery</span>
+                                            </label>
+
+                                            <label
+                                                class="flex items-center gap-3 p-4 bg-[#F6F6F6] rounded-xl border border-gray-200 cursor-pointer transition-all hover:bg-gray-100">
+                                                <input type="radio" name="delivery" value="Ecopy"
+                                                       checked="@(requestModel.DeliveryMethod == "Ecopy")"
+                                                       @onchange="@(() => requestModel.DeliveryMethod = "Ecopy")"
+                                                       class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                                <span class="text-gray-800 font-medium">Ecopy</span>
+                                            </label>
+
+                                        </div>
+                                    </div>
+
+                                    @if (requestModel.DeliveryMethod == "Delivery")
+                                    {
+                                        <div class="transition-all duration-300">
+                                            <label class="block text-gray-600 text-sm font-semibold mb-2">Address (if delivery)</label>
+                                            <input type="text" @bind="requestModel.Address" placeholder="Complete address delivery" required
+                                                   class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    }
+
+                                    <div
+                                        class="bg-[#D3E3FD] text-[#0A1D37] p-5 rounded-2xl flex items-start gap-3.5 border border-[#A8C7FA]">
+                                        <svg class="w-6 h-6 text-[#002D62] shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                             stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <div>
+                                            <p class="font-bold text-[15px] mb-1">You will need to upload</p>
+                                            <ul class="list-disc list-inside text-xs space-y-1 opacity-90">
+                                                <li>Valid Government ID (front and back)</li>
+                                                <li>1x1 or 2x2 Photo (white background)</li>
+                                                <li>Supporting documents (if applicable)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- MULTI-FILE UPLOAD FIELD -->
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-semibold mb-2">Required Documents *</label>
+                                        <div
+                                            class="relative border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center bg-[#FAFBFD] hover:bg-gray-50 transition-colors">
+                                            <InputFile OnChange="HandleFileSelection" multiple
+                                                       accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"
+                                                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                            <svg class="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" stroke-width="1.5"
+                                                 viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z">
+                                                </path>
+                                            </svg>
+                                            <p class="text-gray-600 text-sm text-center font-medium">Click or drag & drop files here to
+                                                attach</p>
+                                                <span class="text-xs text-gray-400 mt-1">PNG, JPG, or PDF up to 10MB each</span>
+                                            </div>
+
+                                            @if (selectedFiles.Any())
+                                            {
+                                                <div class="mt-4 space-y-2">
+                                                    <p class="text-xs font-semibold text-gray-500 uppercase">Selected Files (@selectedFiles.Count)
+                                                    </p>
+                                                    @foreach (var file in selectedFiles)
+                                                    {
+                                                        <div
+                                                            class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                                                            <div class="flex items-center gap-2 truncate">
+                                                                <span class="font-medium text-gray-700 truncate">@file.Name</span>
+                                                                <span class="text-xs text-gray-400">(@(file.Size / 1024) KB)</span>
+                                                            </div>
+                                                            <button type="button" @onclick="() => RemoveFile(file)"
+                                                                    class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1">
+                                                                Remove
+                                                            </button>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <div class="pt-4">
+                                            <button type="submit" disabled="@isSubmitting"
+                                                    class="w-full bg-[#1A73E8] hover:bg-blue-600 text-white font-semibold py-3.5 px-6 rounded-xl text-center transition-colors duration-150 disabled:opacity-50">
+                                                @(isSubmitting ? "Uploading & Submitting..." : "Request")
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </EditForm>
+                            }
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-gray-600 text-sm font-semibold mb-2">Middle Name</label>
-                        <input type="text" @bind="requestModel.MiddleName" placeholder="Enter middle name"
-                               class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-gray-600 text-sm font-semibold mb-2">Last Name *</label>
-                    <input type="text" @bind="requestModel.LastName" placeholder="Enter last name" required
-                           class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-
-                <div>
-                    <label class="block text-gray-600 text-sm font-semibold mb-3">Delivery Method *</label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                        <label
-                            class="flex items-center gap-3 p-4 bg-[#F6F6F6] rounded-xl border border-gray-200 cursor-pointer transition-all hover:bg-gray-100">
-                            <input type="radio" name="delivery" value="PickUp"
-                                   checked="@(requestModel.DeliveryMethod == "PickUp")"
-                                   @onchange="@(() => requestModel.DeliveryMethod = "PickUp")"
-                                   class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
-                            <span class="text-gray-800 font-medium">Pick Up</span>
-                        </label>
-
-                        <label
-                            class="flex items-center gap-3 p-4 bg-[#F6F6F6] rounded-xl border border-gray-200 cursor-pointer transition-all hover:bg-gray-100">
-                            <input type="radio" name="delivery" value="Delivery"
-                                   checked="@(requestModel.DeliveryMethod == "Delivery")"
-                                   @onchange="@(() => requestModel.DeliveryMethod = "Delivery")"
-                                   class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
-                            <span class="text-gray-800 font-medium">Delivery</span>
-                        </label>
-
-                        <label
-                            class="flex items-center gap-3 p-4 bg-[#F6F6F6] rounded-xl border border-gray-200 cursor-pointer transition-all hover:bg-gray-100">
-                            <input type="radio" name="delivery" value="Ecopy"
-                                   checked="@(requestModel.DeliveryMethod == "Ecopy")"
-                                   @onchange="@(() => requestModel.DeliveryMethod = "Ecopy")"
-                                   class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
-                            <span class="text-gray-800 font-medium">Ecopy</span>
-                        </label>
-
-                    </div>
-                </div>
-
-                @if (requestModel.DeliveryMethod == "Delivery")
-                {
-                    <div class="transition-all duration-300">
-                        <label class="block text-gray-600 text-sm font-semibold mb-2">Address (if delivery)</label>
-                        <input type="text" @bind="requestModel.Address" placeholder="Complete address delivery" required
-                               class="w-full px-4 py-3 bg-[#F6F6F6] text-gray-700 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                    </div>
-                }
-
-                <div
-                    class="bg-[#D3E3FD] text-[#0A1D37] p-5 rounded-2xl flex items-start gap-3.5 border border-[#A8C7FA]">
-                    <svg class="w-6 h-6 text-[#002D62] shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                         stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-bold text-[15px] mb-1">You will need to upload</p>
-                        <ul class="list-disc list-inside text-xs space-y-1 opacity-90">
-                            <li>Valid Government ID (front and back)</li>
-                            <li>1x1 or 2x2 Photo (white background)</li>
-                            <li>Supporting documents (if applicable)</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-gray-600 text-sm font-semibold mb-2">Required Documents</label>
-                    <div
-                        class="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center justify-center bg-[#FAFBFD] hover:bg-gray-50 transition-colors cursor-pointer">
-                        <svg class="w-10 h-10 text-gray-400 mb-3" fill="none" stroke="currentColor" stroke-width="1.5"
-                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z">
-                            </path>
-                        </svg>
-                        <p class="text-gray-600 text-sm text-center">Choose a file or drag & drop it here</p>
-                        <button type="button"
-                                class="mt-3 px-5 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 font-semibold shadow-sm hover:bg-gray-50">
-                            Browse File
-                        </button>
-                    </div>
-                </div>
-
-                <div class="pt-4">
-                    <button type="submit" disabled="@isSubmitting"
-                            class="w-full bg-[#1A73E8] hover:bg-blue-600 text-white font-semibold py-3.5 px-6 rounded-xl text-center transition-colors duration-150 disabled:opacity-50">
-                        @(isSubmitting ? "Submitting..." : "Request")
-                    </button>
-                </div>
-
-            </div>
-        </EditForm>
-        }
-    </div>
-</div>
 
 @code {
     [Parameter]
@@ -223,6 +299,7 @@
 
     private DocumentItem? MatchedDocument { get; set; }
     private RequestFormModel requestModel = new();
+    private List<IBrowserFile> selectedFiles = new();
     private bool isSubmitting = false;
     private string errorMessage = "";
     private string successMessage = "";
@@ -232,15 +309,20 @@
     private DateTime MinimumAppointmentDate => DateTime.Today.AddDays(1);
     private List<RequirementChecklistItem> requirements = new();
 
+    private long maxFileSize = 1024 * 1024 * 10; // 10MB limit per file
+
     private bool RequiresAppointment => DocumentSlug.Equals("philippine-passport", StringComparison.OrdinalIgnoreCase)
         || DocumentSlug.Equals("national-id", StringComparison.OrdinalIgnoreCase)
         || DocumentSlug.Equals("drivers-license", StringComparison.OrdinalIgnoreCase)
         || DocumentSlug.Equals("nbi-clearance", StringComparison.OrdinalIgnoreCase);
+
     private int CompletedRequirementCount => requirements.Count(r => r.IsAvailable);
     private int MissingRequirementCount => requirements.Count - CompletedRequirementCount;
-    private int ReadinessPercentage => requirements.Count == 0 ? 0 : (int)Math.Round(CompletedRequirementCount * 100d / requirements.Count);
+    private int ReadinessPercentage => requirements.Count == 0 ? 0 : (int)Math.Round(CompletedRequirementCount * 100d /
+requirements.Count);
     private bool AllRequirementsAvailable => requirements.Count > 0 && requirements.All(r => r.IsAvailable);
-    private bool CanBookAppointment => AllRequirementsAvailable && appointmentDate.HasValue && !string.IsNullOrWhiteSpace(appointmentTime);
+    private bool CanBookAppointment => AllRequirementsAvailable && appointmentDate.HasValue &&
+!string.IsNullOrWhiteSpace(appointmentTime);
 
     protected override void OnParametersSet()
     {
@@ -292,6 +374,29 @@
         requirement.IsAvailable = isAvailable;
     }
 
+    private void HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        errorMessage = "";
+        var files = e.GetMultipleFiles(maximumFileCount: 5);
+        foreach (var file in files)
+        {
+            if (file.Size > maxFileSize)
+            {
+                errorMessage = $"File '{file.Name}' exceeds the 10MB limit.";
+                continue;
+            }
+            if (!selectedFiles.Any(f => f.Name == file.Name))
+            {
+                selectedFiles.Add(file);
+            }
+        }
+    }
+
+    private void RemoveFile(IBrowserFile file)
+    {
+        selectedFiles.Remove(file);
+    }
+
     private async Task HandleAppointment()
     {
         errorMessage = "";
@@ -332,10 +437,39 @@
             return;
         }
 
+        if (!selectedFiles.Any())
+        {
+            errorMessage = "Please attach at least one required document file.";
+            return;
+        }
+
         isSubmitting = true;
 
         try
         {
+            List<string> uploadedUrls = new();
+
+            // Upload files directly to Supabase Storage
+            foreach (var file in selectedFiles)
+            {
+                var fileName = $"{currentUser.Id}/{Guid.NewGuid()}_{file.Name}";
+                using var stream = file.OpenReadStream(maxAllowedSize: maxFileSize);
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                var fileBytes = memoryStream.ToArray();
+
+                await SupabaseClient.Storage
+                    .From("document-uploads")
+                    .Upload(fileBytes, fileName);
+
+                var publicUrl = SupabaseClient.Storage
+                    .From("document-uploads")
+                    .GetPublicUrl(fileName);
+
+                uploadedUrls.Add(publicUrl);
+            }
+
+            // Insert application into database
             var newRequest = new RequestItem
             {
                 UserId = currentUser.Id,
@@ -347,13 +481,14 @@
                 LastName = requestModel.LastName,
                 DeliveryMethod = requestModel.DeliveryMethod,
                 Address = requestModel.DeliveryMethod == "Delivery" ? requestModel.Address : null,
+                FileUrls = uploadedUrls,
                 Status = "Pending",
                 CreatedAt = DateTime.UtcNow
             };
 
             await SupabaseClient.From<RequestItem>().Insert(newRequest);
 
-            successMessage = "Your document request has been submitted successfully!";
+            successMessage = "Your document request and files have been submitted successfully!";
 
             await Task.Delay(2000);
             Navigation.NavigateTo("/user/dashboard");

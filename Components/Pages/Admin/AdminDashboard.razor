@@ -33,39 +33,43 @@
         </div>
     </div>
 
-    <!-- Analytics Stats -->
+    <!-- Analytics Stats (Now Clickable Buttons) -->
     <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-[#FFE0B2] border border-[#FFE2BC] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
+        <button @onclick='() => NavigateToStatus("pending")'
+                class="text-left bg-[#FFE0B2] border border-[#FFE2BC] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800 transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 cursor-pointer">
             <div class="flex justify-between items-start">
                 <p class="text-[12px] font-bold text-amber-800 uppercase tracking-wider">Pending Review</p>
                 <img src="icons/total-requests.svg" alt="" class="w-8 h-8">
             </div>
             <h2 class="font-bold text-[32px] mt-2 text-amber-900">@pendingCount</h2>
-        </div>
+        </button>
 
-        <div class="bg-[#D1C4E9] border border-[#D1D4E9] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
+        <button @onclick='() => NavigateToStatus("processing")'
+                class="text-left bg-[#D1C4E9] border border-[#D1D4E9] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800 transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 cursor-pointer">
             <div class="flex justify-between items-start">
                 <p class="text-[12px] font-bold text-purple-800 uppercase tracking-wider">Processing</p>
                 <img src="icons/in-progress.svg" alt="" class="w-8 h-8">
             </div>
             <h2 class="font-bold text-[32px] mt-2 text-purple-900">@processingCount</h2>
-        </div>
+        </button>
 
-        <div class="bg-[#C8E6C9] border border-[#C8E8D9] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
+        <button @onclick='() => NavigateToStatus("ready-for-pickup")'
+                class="text-left bg-[#C8E6C9] border border-[#C8E8D9] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800 transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 cursor-pointer">
             <div class="flex justify-between items-start">
                 <p class="text-[12px] font-bold text-green-800 uppercase tracking-wider">Ready for Pickup</p>
                 <img src="icons/for-pickup.svg" alt="" class="w-8 h-8">
             </div>
             <h2 class="font-bold text-[32px] mt-2 text-green-900">@readyCount</h2>
-        </div>
+        </button>
 
-        <div class="bg-[#B3E5FC] border border-[#B3EBFD] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800">
+        <button @onclick='() => NavigateToStatus("completed")'
+                class="text-left bg-[#B3E5FC] border border-[#B3EBFD] rounded-xl p-5 pb-7 w-full shadow-sm text-gray-800 transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 cursor-pointer">
             <div class="flex justify-between items-start">
                 <p class="text-[12px] font-bold text-blue-800 uppercase tracking-wider">Completed Overall</p>
                 <img src="icons/total-requests.svg" alt="" class="w-8 h-8">
             </div>
             <h2 class="font-bold text-[32px] mt-2 text-blue-900">@completedCount</h2>
-        </div>
+        </button>
     </div>
 
     <!-- Active Table Queue -->
@@ -201,6 +205,11 @@
         Navigation.NavigateTo("/admin/requests");
     }
 
+    private void NavigateToStatus(string categorySlug)
+    {
+        Navigation.NavigateTo($"/admin/requests/{categorySlug}");
+    }
+
     private void OpenReviewModal(RequestItem request)
     {
         selectedRequest = request;
@@ -211,7 +220,7 @@
     {
         showReviewModal = false;
         selectedRequest = null;
-        await RefreshData(); // Instantly refresh statistics counts if a request status changed
+        await RefreshData();
     }
 
     private string GetStatusBadgeClass(string status) => status switch
